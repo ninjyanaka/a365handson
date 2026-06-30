@@ -109,12 +109,6 @@ Setup Summary
 ![Step4 — ② 委任権限の管理者同意ダイアログ（Allow / Deny）](./images/04-setup-consent.png)
 *▲ ② 管理者同意。blueprint から作られる全エージェントに付与される権限（Mail / MCP / Telemetry 等）を確認して **Allow**。*
 
-![Step3 — generated config の resourceConsents 確認](./images/step3-02-generated-config.png)
-*▲ generated config で `resourceConsents` が全て `True` であることを確認*
-
-> [!TIP]
-> **Observability の 403 はここで決まる。** generated config の `resourceConsents` で Observability API（`9b975845-388f-...`）が `consentGranted=True` なら、その blueprint では 403 は起きません。**新しい blueprint を作るたびに同意は付け直し**になる点に注意。
-
 ---
 
 ## B：承認 — Requests タブから公開（Publish）する
@@ -321,20 +315,6 @@ az ad app delete --id <orphanのappId>
 
 > [!TIP]
 > **迷ったら：止める＝① 無効化（構成保持・即復帰）／ 廃止する＝② 削除（連鎖・30 日で完全削除）。** まず無効化、確証が取れてから削除、が安全な順序です。
-
----
-
-## 確認チェックリスト
-
-- [ ] `a365.generated.config.json` の `completed=True`
-- [ ] `resourceConsents` が全て `consentGranted=True`（特に Observability API）
-- [ ] `messagingEndpoint` が現在の devtunnel を指している
-- [ ] 管理センター All agents にエージェントが表示される
-- [ ] **Requests** タブで承認（Publish）した
-- [ ] instance の **Entra Agent ID が実値**になっている
-- [ ] **agent user** が作成され、Teams で `@mention` できる
-- [ ] **① ブロック（無効化）** → 解放が想定どおり動く（レジストリ Block／Entra で無効）
-- [ ] **② 削除** の対象フォルダ・config を確認した（`a365 cleanup`／連鎖クリーンアップを理解）
 
 ---
 
