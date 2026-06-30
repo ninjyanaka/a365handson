@@ -24,22 +24,12 @@ Microsoft Agent 365 の理解を深めるためのワークショップです。
 
 ---
 
-## このハンズオンの地図
+## 本ワークショップの全体像
 
 ```
 00 概要 ─▶ 01 前提 ─▶ 02 Entra Agent ID ─▶ 03 サードパーティ管理 ─▶ 04 登録 ─▶ 05 認証 ─▶ 06 公開 ─▶ 07 ガバナンス ─▶ 08 観測 ─▶ 99 付録
  (とは？)   (3層/B→I)    (ID/Registry)        (a365 CLI 一式)        (発行)     (OBO/S2S)  (manifest)  (CA/停止削除)   (ログ/トレース)
 ```
-
-## 前提条件（ライセンス・ロール・ツール）
-
-| 区分 | 内容 |
-| --- | --- |
-| **ライセンス** | Microsoft 365 **E7**、または **E5 + Microsoft Agent 365**（Observability 権限の前提でもある） |
-| **ロール** | 管理センターでの承認・instance 作成に **Global Administrator**（または Agent ID Administrator） |
-| **ツール** | Node.js 18+ / Agent 365 DevTools CLI（`a365`）/ Azure CLI（`az`）/ devtunnel CLI |
-| **前提プログラム** | テナントが **Frontier preview** に登録済みであること |
-
 > [!IMPORTANT]
 > Agent ID は **instance 化して初めて付与**されます。`blueprint` は「テンプレート」であって実体ではありません。
 > 概念は [00 概要](./00-overview.md) と [Step 2](./02-entra-agent-id.md)、a365 での作り方は [Step 3](./03-third-party-management.md) を参照してください。
