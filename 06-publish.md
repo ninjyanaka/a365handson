@@ -66,9 +66,6 @@ To publish:  https://admin.microsoft.com  >  Agents  >  All agents  >  Upload cu
 > [!TIP]
 > アップロード後、管理センターと Teams に表示されるまで **5〜10 分**。承認 → **+ Add instance** で Entra Agent ID が付与され、Blueprint→Instance が完結します。
 
-> [!WARNING]
-> **`a365 cleanup` すると blueprint ID が変わり、publish 済みマニフェストの ID は古いまま**になります。`cleanup → setup` したら必ず `a365 publish` からやり直し、管理センターに**再アップロード**してください。
-
 > [!NOTE]
 > **短縮名は 30 文字未満。** マニフェストの `short name` が 30 文字以上だと publish が失敗します。
 

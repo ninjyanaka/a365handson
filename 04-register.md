@@ -115,9 +115,6 @@ Setup Summary
 > [!TIP]
 > **Observability の 403 はここで決まる。** generated config の `resourceConsents` で Observability API（`9b975845-388f-...`）が `consentGranted=True` なら、その blueprint では 403 は起きません。**新しい blueprint を作るたびに同意は付け直し**になる点に注意。
 
-> [!WARNING]
-> 逆に、**Observability 同意済みの blueprint を不用意に `a365 cleanup` しない**。同意済みの状態は貴重なので、`consentGranted=True` が揃っているなら再利用する方が早いです。
-
 ---
 
 ## 演習 B：承認 — Requests タブから公開（Publish）する
@@ -192,7 +189,7 @@ Setup Summary
 *▲ ③ 「created successfully and is ready to use」。ライセンス（Microsoft 365 Frontier for AI teammates）が 1 つ消費される（例 17 of 25 available）。*
 
 ![④ Instance 詳細 — Entra agent ID が実値化](./images/04-add-instance-04-agentid.png)
-*▲ ④ 作成された instance の詳細。**Entra agent ID が実値**（例 `b66889ae-05bc-4de8-…`）に変わり、Owner も設定済み。*
+*▲ ④ 作成された instance の詳細。**Entra agent ID が「—」から実値の GUID** に変わり、Owner も設定済み。*
 
 **② 別ルート：エージェントストア（Built by your org）から**
 

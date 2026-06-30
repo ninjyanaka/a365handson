@@ -19,9 +19,6 @@
 | `MCP: rawServers.map is not a function` | MCP 未使用なのに登録を試みている。`client.ts` の `addToolServersToAgent` をガード/コメントアウト。Observability には無関係。 |
 | スパンがコンソールに出ない | `NODE_ENV=production` だと `enableConsoleExporters=false`。これは正常。送信確認は `A365_OBSERVABILITY_LOG_LEVEL` と管理センターで。 |
 
-> [!WARNING]
-> **token resolver の `?? ''` が失敗を握りつぶす。** トークンが取れないと空文字を返し、空トークンで送信 → 403 になりますが、例外が出ないため「何も起きていないように見える」。原因の切り分けには必ずログ（`🔎 OBS` / `✅❌`）を仕込んでください。
-
 ---
 
 ## クイックチェックリスト

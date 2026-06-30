@@ -1,77 +1,78 @@
-# Step 1 — 前提：3 レイヤー / Blueprint→Instance / 事前準備
+# Step 1 — Agent 365 を利用する前提条件
 
-[← 00 概要](./00-overview.md) ｜ [← 目次](./README.md) ｜ [Step 2：Entra Agent ID →](./02-entra-agent-id.md)
+[← 00 概要](./00-overview.md) ｜ [← 目次](./README.md) ｜ [Step 2：Agent Registry / Entra Agent ID →](./02-entra-agent-id.md)
 
-ハンズオンに入る前に、**混乱の元になりやすい 3 つの考え方**を最初に揃えます。Agent 365 の「動かない」の多くは、ここの混同から生まれます。
+Agent 365 を使い始めるための、**組織側の前提（ライセンス・権限・対象 Agent・担当者）** を整理します。
+（自前ホストで**開発**するための環境・ツール・3 レイヤーの考え方は [Step 3：サードパーティ管理](./03-third-party-management.md) にまとめています。）
 
 ---
 
-## 1. 3 つのレイヤーを分けて考える
+## 1. ライセンス
 
-| レイヤー | 役割 |
+| 区分 | 内容 |
 | --- | --- |
-| **① M365 Agents SDK** | メッセージの送受信を担う「配管」。チャネル抽象化・状態管理を提供。**これ単体では Agent ID は付かない**（ただの bot）。 |
-| **② Agent 365 SDK** | ①に **Observability・Notifications・MCP アクセス**を足す拡張。テレメトリはここが OpenTelemetry で送る。 |
-| **③ Agent 365 / Entra Agent ID** | `blueprint → instance` で **agentic identity（Entra Agent ID）** を発行する仕組み。これがあって初めて agentic 認証・OBO・Observability が成立する。 |
+| **基盤（必須）** | Microsoft 365 テナント |
+| **ライセンス（必須）** | **Microsoft Agent 365**（評価可）／ **Microsoft 365 Copilot** ／ **Microsoft 365 E5**（または E7） |
+| ネットワーク（任意） | Entra Internet Access / Global Secure Access（エージェントの通信制御を使う場合） |
+| データ準備（推奨） | アクセスデータ・**秘密度ラベル**・**DLP ポリシー**の事前準備 |
 
-> [!IMPORTANT]
-> **Agent ID は instance 化して初めて付く。** `blueprint` は「テンプレート」であって実体ではありません。
-> Teams で `@mention` できる実体（agent identity + agent user）は、blueprint から instance を作って初めて生まれます。
+> [!NOTE]
+> Observability や Defender for AI などの保護機能も、上記ライセンス（Agent 365）が前提です。
 
 ---
 
-## 2. Blueprint → Instance の関係
+## 2. 権限（RBAC / ロール）
 
-```
-         +--------------------+              +---------------------------------+
-         |     Blueprint      |  + Add       |  Instance A  Entra Agent ID      |
-         |  IT 承認テンプレート | ──instance─▶ |              12f560ef-...        |
-         |  機能/ツール/制約/監査|              +---------------------------------+
-         |  ポリシーを全 Instance|              |  Instance B  Entra Agent ID — → 実値 |
-         |  に継承             |              +---------------------------------+
-         +--------------------+              |  Instance C  Entra Agent ID — → 実値 |
-                                             +---------------------------------+
-```
+Agent 365 を中核に、**Entra（ID）・Defender（監視）・Purview（データ保護）** の周辺 RBAC を**最小権限**で役割分担します。
 
-instance 作成後、blueprint 詳細の **Entra agent ID が「—」から実値**（例 `12f560ef-...`）に変わります。
-この値が **Observability 送信時の `agentId`** になり、`agent user`（例 `hana-assistant@tenant.onmicrosoft.com`）がテナントに現れて Teams で `@mention` 可能になります（同期に数分かかることがあります）。
+| 担当 | 主な必要 RBAC | 概要 |
+| --- | --- | --- |
+| **統括管理** | **AI Administrator** | 可視化・承認・公開・ブロック・構成・ガバナンスの**中心ロール** |
+| 閲覧・監査 | AI Reader ／ Reports Reader | 設定・利用状況・レポートの参照（読み取り専用） |
+| Entra（ID/アクセス） | Conditional Access・Identity Governance・Agent ID・Agent Registry Administrator | 条件付きアクセス、アクセスパッケージ、Agent ID・レジストリ管理 |
+| Defender（監視・対応） | Security Administrator ／ Reader | 脅威・アラート・インシデントの閲覧と対応 |
+| Purview（データ保護） | Data Security AI Viewer ／ Content Viewer ほか | DSPM・DLP の参照、プロンプト/応答の確認、eDiscovery |
 
 > [!TIP]
-> **「そもそも Entra Agent ID とは？」「instance で何が払い出されるのか」** を一段深く知りたい場合は [Step 2：Entra Agent ID](./02-entra-agent-id.md) を、
-> **「a365 でどう作るのか」** は [Step 3：サードパーティ管理](./03-third-party-management.md) を参照してください。
+> **AI Administrator** ＝ エージェントの承認・公開・ブロック、アクセス制御、テナント全体の同意付与（Graph app 権限を除く）。
+> ✕ 対象外：ユーザーライセンス/サインイン管理・Entra 構成・特権ロール割り当て（PIM）・高権限同意。
 
 ---
 
-## 3. 事前準備
+## 3. Agent 365 が対象とする Agent
 
-### 3.1 必要なもの
-
-- [ ] Node.js 18 以降（サンプルは Node.js / TypeScript / ts-node）
-- [ ] Agent 365 DevTools CLI（`a365` コマンド）
-- [ ] Azure CLI（`az`。orphan アプリ削除などに使用）
-- [ ] devtunnel CLI（ローカルを外部公開する）
-- [ ] **ライセンス**：Microsoft 365 E7、または E5 + Microsoft Agent 365
-- [ ] **ロール**：Global Administrator（または Agent ID Administrator）
-
-### 3.2 ポート設計（複数エージェントを並行運用するとき）
-
-エージェントごとにフォルダとポートを分けると衝突しません。例：agent モードを `3978`、AI Teammate を `3979` に分離。
-
-> [!WARNING]
-> **devtunnel・`.env` の `PORT`・Bot の Notification URL の 3 か所でポートが一致**している必要があります。
-> 別エージェントはフォルダごと分けること。ただしサンプルをコピーすると `.env` や `agent.ts` の中身も引き継がれるため、デバッグ用 `console.log` などは新フォルダには無い点に注意。
-
-### 3.3 主要ファイルと役割
-
-| ファイル | 役割 |
+| 対象 Agent | 扱い |
 | --- | --- |
-| `src/index.ts` | エントリポイント。OpenTelemetry distro の初期化（**最重要：他 import より前**）、Express サーバ、認証ミドルウェア、`/api/messages`・`/api/health`。 |
-| `src/agent.ts` | `AgentApplication` 本体。メッセージ処理、Observability トークンの preload、通知処理。 |
-| `src/token-cache.ts` | カスタム token resolver とローカルキャッシュ（`Use_Custom_Resolver=true` のときのみ）。 |
-| `.env` | 全設定。`a365 setup all` がここに値をスタンプする。 |
-| `a365.config.json` | **AI Teammate 用の手動作成 config**（agent user の UPN 等）。 |
-| `a365.generated.config.json` | setup が生成。blueprint ID・同意状況・messaging endpoint を記録。 |
+| **Copilot Studio（推奨）** | ネイティブで**自動登録**。PoC の中心に最適。 |
+| Microsoft 365 Agents / Foundry | ネイティブ連携（自動登録）。 |
+| **自前ホスト / SDK 連携**（本ワークショップ題材） | `a365` SDK で登録・管理（→ [Step 3](./03-third-party-management.md)）。 |
+| 他クラウド 3P（Bedrock / Gemini / Agentforce / Databricks） | **Registry Sync** で可視化（プレビュー）。 |
+| 端末上のローカル Agent | Defender / Intune / Purview で検出（Shadow AI 対策）。 |
+
+> [!NOTE]
+> 深い統制（条件付きアクセス・DLP 等）はネイティブ／SDK 連携が優位。右にいくほど「可視化中心」になります。
 
 ---
 
-[← 00 概要](./00-overview.md) ｜ [Step 2：Entra Agent ID →](./02-entra-agent-id.md)
+## 4. Agent 365 を利用する担当者（誰が・どんな役割）
+
+エージェントのライフサイクル（**定義 → 構築 → 承認 → 運用・管理 → リタイア**）を、**開発者・IT 管理者・セキュリティ**の3者でエンドツーエンドに統制します。
+
+![Step1 — 役割 × ライフサイクル](./images/01-roles-lifecycle.png)
+*▲ AI エージェントのライフサイクルを、開発者・IT 管理者・セキュリティの3者で統制（従業員は承認済みエージェントを利用）*
+
+| 担当者 | 主なポータル | 役割 |
+| --- | --- | --- |
+| **開発者**（ナレッジワーカー） | Copilot Studio / Foundry | エージェントを構築・公開。Sandbox / Production を選択。公開で **Agent ID が自動付与**。 |
+| **IT 管理者**（AI Administrator） | Agent 365（M365 管理センター） | オンボード・**承認・公開**・ポリシー適用・監視・**無効化**。 |
+| **セキュリティ管理者** | Microsoft Defender | 脅威検知・防御・調査（Advanced Hunting）。 |
+| **コンプライアンス担当** | Microsoft Purview | DSPM・DLP・監査・eDiscovery。 |
+| **ID 管理者** | Microsoft Entra | Agent ID・条件付きアクセス・アクセスレビュー（ID Governance）。 |
+| **利用者**（従業員） | Teams / Copilot | 承認されたエージェントを利用。 |
+
+> [!TIP]
+> 意思決定層・AI 推進 / Copilot CoE は**概念中心でOK**（実機は任意）。既存の ID／セキュリティ／コンプラ体制に合わせて分掌します。
+
+---
+
+[← 00 概要](./00-overview.md) ｜ [Step 2：Agent Registry / Entra Agent ID →](./02-entra-agent-id.md)

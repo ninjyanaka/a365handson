@@ -53,9 +53,6 @@ az ad app delete --id <orphanのappId>  # 残っていれば手動削除
 ![Step6 — リタイア（cleanup / orphan 削除）](./images/step6-03-cleanup.png)
 *▲ `a365 cleanup` と orphan アプリの削除*
 
-> [!WARNING]
-> **`a365 cleanup` は作業ディレクトリの config を読んで、すべての Agent 365 リソースを削除します。** 実行前に必ずフォルダと対象を確認してください。**同意済みの blueprint は不用意に削除しない**（再取得に手間がかかります）。
-
 > [!TIP]
 > **停止と削除は別物。** Block（Kill Switch）は構成・データ接続を保持したまま使用を停止 → 調査後にそのまま解放できます。完全削除は `a365 cleanup`。90 日未使用で自動期限切れ、退役時は **アクセスレビュー（Entra ID Governance）** も実施。
 
