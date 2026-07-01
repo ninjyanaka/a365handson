@@ -1,6 +1,6 @@
 # Step 8 — 観測（ログ / 実行トレース / ツール呼び出し）
 
-[← 目次](./README.md) ｜ [← Step 7：ガバナンス](./07-governance.md) ｜ [付録：トラブルシュート →](./99-troubleshooting.md)
+[← 目次](./README.md) ｜ [← Step 7：ガバナンス](./07-governance.md) ｜ [次：Step 9 セキュリティ →](./09-security.md)
 
 ## 目的
 
@@ -362,17 +362,6 @@ AgentsInfo
 
 ---
 
-## データの保持・上限（把握しておくべき制約）
-
-| 項目 | 内容 | 出典 |
-| --- | --- | --- |
-| **保持期間** | Agent 365 の Observability データは **30日間保持後、自動削除** | [データ取り扱い・レジデンシー・コンプライアンス › Data retention](https://learn.microsoft.com/microsoft-agent-365/admin/data-residency-protection-compliance#data-retention) |
-| **データレジデンシー** | テナントの既定ジオグラフィに保存。一部のサービス生成データ（メトリクス等）はEU/US側にレプリケートされる場合あり（EUDB準拠） | [データ取り扱い・レジデンシー・コンプライアンス › Data residency](https://learn.microsoft.com/microsoft-agent-365/admin/data-residency-protection-compliance#data-residency) |
-| **ライセンス条件** | テナント内の**誰か1人**に M365 E7 または Agent 365 ライセンスの**割り当て**が必須（無いと `200` を返しつつ全 drop） | [Agent 365 observability concepts › Limits and drop conditions](https://learn.microsoft.com/microsoft-agent-365/developer/observability-concepts#limits-and-drop-conditions) |
-| **同意（consent）** | テナント管理者による同意が**テナントにつき1回**必要。未同意は `AADSTS65001` またはトークンに `roles`/`scp` が無いまま `403` | [Agent 365 observability concepts › Tenant consent](https://learn.microsoft.com/microsoft-agent-365/developer/observability-concepts#tenant-consent) |
-
----
-
 ## Agent 365 Observability SDK と Purview SDK/API の違い
 
 似た名前の統合ポイントが2つあるため、混同しないよう整理します。
@@ -387,6 +376,20 @@ AgentsInfo
 
 > [!NOTE]
 > **両者は併用が前提。** Observability SDK は「何が起きたかを後から確認・監査する」もの、Purview SDK/API は「起きる前に止める」ものです。DLPでのブロックや機密ラベルの尊重をアプリ側で実現したい場合は、[Microsoft Purview API をアプリに統合するチュートリアル](https://learn.microsoft.com/purview/developer/use-the-api)、Microsoft Agent Framework を使っている場合は [Use Microsoft Purview SDK with Agent Framework](https://learn.microsoft.com/agent-framework/tutorials/plugins/use-purview-with-agent-framework-sdk) を参照してください。
+
+> [!TIP]
+> **Defender・Purview のセキュリティ／ガバナンス機能（脅威検知・DLP・IRM など）は [Step 9：セキュリティ](./09-security.md) にまとめています。** 本 Step はあくまで「テレメトリがどう送られ、どこで確認できるか」に焦点を当てています。
+
+---
+
+## データの保持・上限（把握しておくべき制約）
+
+| 項目 | 内容 | 出典 |
+| --- | --- | --- |
+| **保持期間** | Agent 365 の Observability データは **30日間保持後、自動削除** | [データ取り扱い・レジデンシー・コンプライアンス › Data retention](https://learn.microsoft.com/microsoft-agent-365/admin/data-residency-protection-compliance#data-retention) |
+| **データレジデンシー** | テナントの既定ジオグラフィに保存。一部のサービス生成データ（メトリクス等）はEU/US側にレプリケートされる場合あり（EUDB準拠） | [データ取り扱い・レジデンシー・コンプライアンス › Data residency](https://learn.microsoft.com/microsoft-agent-365/admin/data-residency-protection-compliance#data-residency) |
+| **ライセンス条件** | テナント内の**誰か1人**に M365 E7 または Agent 365 ライセンスの**割り当て**が必須（無いと `200` を返しつつ全 drop） | [Agent 365 observability concepts › Limits and drop conditions](https://learn.microsoft.com/microsoft-agent-365/developer/observability-concepts#limits-and-drop-conditions) |
+| **同意（consent）** | テナント管理者による同意が**テナントにつき1回**必要。未同意は `AADSTS65001` またはトークンに `roles`/`scp` が無いまま `403` | [Agent 365 observability concepts › Tenant consent](https://learn.microsoft.com/microsoft-agent-365/developer/observability-concepts#tenant-consent) |
 
 ---
 
@@ -408,4 +411,4 @@ AgentsInfo
 - [Microsoft Purview API をアプリに統合する（DLP/ラベルのインライン適用）](https://learn.microsoft.com/purview/developer/use-the-api)
 - [Use Microsoft Purview SDK with Agent Framework](https://learn.microsoft.com/agent-framework/tutorials/plugins/use-purview-with-agent-framework-sdk)
 
-[← Step 7：ガバナンス](./07-governance.md) ｜ [付録：トラブルシュート →](./99-troubleshooting.md)
+[← Step 7：ガバナンス](./07-governance.md) ｜ [次：Step 9 セキュリティ →](./09-security.md)

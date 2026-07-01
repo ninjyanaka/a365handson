@@ -31,6 +31,40 @@
 
 > レジストリに登録するには各エージェントについて **エージェント インスタンス**（実行・管理に必要な操作情報）と **エージェント カード マニフェスト**（他のエージェント/アプリが発見・操作するための検出メタデータ）の 2 種類が必要です。登録経路は [Step 3：サードパーティ管理](./03-third-party-management.md) を参照。
 
+### 危険にさらされているエージェント（Agents at risk）
+
+M365 管理センターの **概要（Overview）ページ › Agents at risk カード**では、**Microsoft Entra／Microsoft Purview／Microsoft Defender** の3プラットフォームを横断して検出された**高重大度リスク**を持つエージェントのテナントレベルの要約が表示されます。最もリスクの高い上位3エージェントが可視化され、**View agents** から Registry のリスクレベル順プレフィルタ済みビューに直接遷移できます。
+
+> [!IMPORTANT]
+> **Risks 列（および Security タブの詳細）の閲覧には Microsoft 365 E7 または Agent 365 ライセンスが必須**です。ライセンスが無いテナントではこの列自体が表示されません。
+
+Registry の **Risks 列**は、次の10種類のリスクを重大度別に集約します（重大度が高いものほど優先的にレビュー）。
+
+| リスクの種類 | 重大度 | シグナルソース | トリガー |
+| --- | --- | --- | --- |
+| シャドウ エージェント | Critical | Entra／M365 管理センター | レジストリ未登録・所有者なし・Entra Agent ID なし |
+| 所有者未割り当て | Critical | Entra／M365 管理センター | 所有者・スポンサーが記録に無い |
+| 過剰なアクセス許可 | Critical | Entra／Defender | 宣言された機能を超えるアクセス権（最小特権違反） |
+| セキュリティ構成の誤り | High | Defender | Security Exposure Management が検出した悪用可能な攻撃パス |
+| プロンプト インジェクション | High | Defender／Entra Security Service Edge (SSE) | AI Prompt Shield が実行時のインジェクション試行を検知／ブロック |
+| 機密データ アクセス | High | Purview | 一致する DLP ポリシー例外なしでラベル付きデータにアクセス |
+| 条件付きアクセス違反 | High | Entra | 定義された条件（場所・デバイス・リスクスコア）の範囲外でアクセス試行 |
+| 承認待ち | Medium | M365 管理センター | IT ガバナンスレビュー完了前にエージェントが稼働している可能性 |
+| 操作上の例外 | Medium | M365 管理センター | エージェントの会話・ツール実行でのエラー／失敗 |
+| コンプライアンス／保持期間のギャップ | Medium | Purview | 必要な監査証跡・保持ポリシーが欠落した相互作用 |
+
+Risks 列の数値を選択すると、エージェント詳細フライアウトの **Security タブ**に遷移し、対応する全プラットフォームの合算リスク数・**Enabled policies and protection**（Entra/Purview が適用中の既定保護）・**Block** アクションが確認できます。**レビュー** リンクは該当のセキュリティポータル（Defender／Purview／Entra）へ遷移しますが、遷移先で実際に調査できるかはロールに依存します。
+
+| ロール | Defender で調査 | Purview で調査 | Entra で調査 |
+| --- | --- | --- | --- |
+| AI Administrator | 不可 | 不可 | 一部可 |
+| Reports Reader | 不可 | 不可 | 不可 |
+| Security Reader / Security Administrator | 可 | 不可 | 可 |
+| Global Reader | 可 | 不可 | 可 |
+
+> [!NOTE]
+> Purview 側のリスク調査には、**Insider Risk Management Analyst** または **Insider Risk Management Investigator** ロールの割り当てが別途必要です（上表のどのロールにも自動では含まれません）。また、Registry のリスク数はそれぞれのセキュリティポータル表示に対して**最大1時間遅延**する場合があります。
+
 ### 管理対象の整理 — どのエージェントが・どう載るか
 
 Agent Registry は **Microsoft ネイティブだけでなく、SDK 連携・他クラウド・外部 SaaS・端末上のローカル AI まで**横断して載せ、一元管理します。
@@ -49,6 +83,27 @@ Agent Registry は **Microsoft ネイティブだけでなく、SDK 連携・他
 > [!NOTE]
 > - **Registry Sync**：他クラウドの既存エージェントを管理センターに同期して可視化（現状は手動トリガー、将来スケジュール自動同期）。深い統制はネイティブ／SDK が優位。
 > - **ローカル Agent（Shadow AI）**：端末に入り込んだ野良エージェントを **Defender for Endpoint / Intune / Purview** で検出 → リスクレビュー後に **承認 / ブロック / 監視** → Registry に自動登録して一元管理。
+
+### Registry Sync で取れる情報の違い（ネイティブ／SDK 統合 vs 3rd party cloud）
+
+「Registry に載っている」ことと「Entra Agent ID として深く統制されている」ことは**イコールではありません**。特に Registry Sync（プレビュー）経由のエージェントは、**可視化・棚卸し用のメタデータのみ**を持ち込む点が、ネイティブ／SDK 統合エージェントと大きく異なります。
+
+| 項目 | ネイティブ登録／SDK 統合（Entra Agent ID あり） | Registry Sync（Amazon Bedrock / Google Vertex AI / Salesforce Agentforce / Databricks Genie） |
+| --- | --- | --- |
+| Entra Agent ID | **発行される**（blueprint → instance） | **発行されない**。Entra 上の ID 実体は無く、Registry 上の表示のみ |
+| Risks 列（Entra/Defender/Purview 集約） | フル対応（10種のリスクを検出） | 限定的。Entra 側のシグナル（CA 違反・過剰権限など）は評価対象外 |
+| CA・DLP・IRM 等の深い統制 | 可能（本 Step／[Step 7：ガバナンス](./07-governance.md)） | **不可**。可視化・棚卸し（オンボード状況の把握）が主目的 |
+| エージェント詳細タブ | Details / Users / Data & Tools / Security / Permissions / Certification / Activity / Instances をすべて取得 | 接続（Connection）単位の同期結果が中心。個々のエージェントの Security/Permissions タブ相当の情報は持たない |
+| 同期後に取得できる項目 | span 単位のテレメトリ（[Step 8：観測](./08-observability.md)）まで含む | Platform provider／Region／Last run date／Last sync status／Total synced agents／Synchronization results（接続のメタデータ） |
+| 認証方式 | Entra 上のテナント同意・ロールベース | プラットフォームごとの API 資格情報（例：Bedrock は IAM アクセスキー、Vertex AI はサービスアカウントキー、Agentforce は OAuth Connected App） |
+| 同期方式 | リアルタイム（span がプッシュ型で送信） | **管理者による手動トリガー**（`Sync agents` ボタン）。プレビュー時点ではスケジュール同期は未提供 |
+| エージェント管理アクション | Block／削除／CA 適用など | AI プラットフォーム API がサポートする範囲のエージェント管理操作のみ |
+
+> [!IMPORTANT]
+> **2026年7月1日以降、サードパーティ クラウドエージェントの検出経路が変わります。** これまで Microsoft Defender for Cloud のコネクタ経由で検出していたサードパーティ クラウドエージェント（Bedrock・Vertex AI 等）は、この日以降 **Registry Sync** 経由での検出に一本化されます。Defender for Cloud 側の検出を使っていた場合は、事前に Registry Sync への接続設定が必要です。
+
+> [!TIP]
+> 深い統制（CA・DLP・条件付きブロックなど）が必要なサードパーティ／自前ホスト型エージェントは、Registry Sync ではなく **Agent 365 SDK** で統合してください（→ [Step 3：サードパーティ管理](./03-third-party-management.md)）。Registry Sync はあくまで「まず存在を把握する」ための棚卸し機能で、Bedrock・Vertex AI 側で追加の SDK 統合を行えばオブザーバビリティ等を段階的に追加できます。
 
 ![Step2 — ローカルエージェントの多層防御](./images/02-local-agent-defense.png)
 *▲ ローカルエージェントは単一製品では守りきれない。**封じ込め（MXC）・実行時保護（Defender for Endpoint）・データ（Purview）・ネットワーク（Entra Global Secure Access）・デバイス管理（Intune）** の各層で守り、**Agent 365 が発見・統制・保護の統合制御点**になる。*
@@ -216,6 +271,11 @@ instance 作成画面で入力する主な項目：
 ## 参考リンク
 
 - [Microsoft 365 管理センターのエージェント レジストリ（Microsoft Learn）](https://learn.microsoft.com/microsoft-365/admin/manage/agent-registry)
+- [Microsoft 365 管理センターのエージェント詳細（Agent details / Security タブ）](https://learn.microsoft.com/microsoft-365/admin/manage/agent-details)
+- [Registry sync in the Microsoft 365 agent registry（プレビュー）](https://learn.microsoft.com/microsoft-agent-365/admin/agent-registry)
+- [Connect existing agents to Microsoft Agent 365（Bedrock/Vertex AI 等の既存エージェント統合）](https://learn.microsoft.com/microsoft-agent-365/connect-existing-agents)
+- [Agent Registry convergence with Microsoft Agent 365](https://learn.microsoft.com/entra/agent-id/agent-registry-convergence)
+- [Copilot Studio / Foundry のエージェント セキュリティ機能を Agent 365 へ移行する（2026年7月1日）](https://learn.microsoft.com/defender-xdr/security-for-ai/transition-agent-security-to-agent-365)
 - [エージェント ID ブループリント（Microsoft Learn）](https://learn.microsoft.com/entra/agent-id/agent-blueprint)
 - [Microsoft Entra Agent ID 入門編（Zenn）](https://zenn.dev/microsoft/articles/a52eae77302ce7)
 
