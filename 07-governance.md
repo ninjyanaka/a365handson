@@ -105,10 +105,22 @@ Entra › **条件付きアクセス**で、対象に「**エージェント ID*
 | ネットワーク制御 | エージェント向けネットワーク制御は **Microsoft Entra Internet Access** が必要 |
 | 対象 | エージェント ID（agent identity blueprint）を CA ポリシーの対象に指定 |
 
-![Step6 — 条件付きアクセス（エージェント対象）](./images/step6-02-conditional-access.png)
-*▲ 条件付きアクセスの対象にエージェント ID を指定*
+![条件付きアクセス：Block - High Risky Agent](./images/07-ca-01-block-high-risk.png)
+*▲ 例：CA ポリシー **「Block - High Risky Agent」**。対象＝**All agent identities**／ Target resources＝All agent resources／ 条件＝**Agent risk (Preview) = High**／ 許可制御＝**Block access**。まず **Report-only** で影響確認 → On。*
 
-### 3. ライフサイクル（停止 → 削除）
+### 3. ライフサイクル & Agent management rules（一括ガバナンス）
+
+**Agent management rules**（管理センター › **Agents › Settings**）で、条件に合うエージェントへ**一括で**ガバナンス操作を適用します。**「条件に合致するエージェントを特定 → 実行前にレビュー → 一括適用」** の流れで、管理者を制御ループに残したまま大規模運用できます。
+
+| ルール（現在提供） | 内容 |
+| --- | --- |
+| **Install Microsoft (1P) agents** | Microsoft 製エージェントを特定し、レビュー後に**全ユーザーへ一括インストール**。 |
+| **Reassign ownerless agents to manager** | 作成者の離職などで**所有者不在**になったエージェント（Agent Builder 製）を特定し、**前所有者のマネージャー**（Entra ID 階層）へ**一括で所有権移管**。 |
+
+> [!NOTE]
+> **Agents › Settings** には他に **Allowed agent types**（Microsoft／自組織／外部発行元の可否）・**Security templates**・**Sharing**・**User access**（All / No / Specific users）もあります。未使用エージェントの自動無効化（例：90 日）は、この Management Rule として**今後提供予定**です。
+
+**開発者側の完全削除（自前ホスト）** — 作業ディレクトリの `a365 cleanup` で全 Agent 365 リソースを削除します（破壊的）。
 
 ```powershell
 cd C:\path\to\target-folder          # ← フォルダを間違えない（最重要）
@@ -120,23 +132,11 @@ az ad app list --display-name "<blueprint名>" --query "[].{name:displayName, ap
 az ad app delete --id <orphanのappId>  # 残っていれば手動削除
 ```
 
-![Step6 — リタイア（cleanup / orphan 削除）](./images/step6-03-cleanup.png)
+![リタイア（cleanup / orphan 削除）](./images/step6-03-cleanup.png)
 *▲ `a365 cleanup` と orphan アプリの削除*
 
 > [!TIP]
-> **停止と削除は別物。** Block（Kill Switch）は構成・データ接続を保持したまま使用を停止 → 調査後にそのまま解放できます。完全削除は `a365 cleanup`。未使用エージェントの自動期限切れ（例：90 日）は **Management Rule で設定する今後提供予定の機能**で、設定に依存します。退役時は **アクセスレビュー（Entra ID Governance）** も実施。
-
----
-
-## 確認チェックリスト
-
-- [ ] 公開後、**Active 化**で利用者（All users / 特定ユーザー・グループ）を指定した
-- [ ] **ポリシーテンプレート**（既定 / カスタム）を適用した
-- [ ] blueprint を承認し、Graph / Observability 権限に同意した
-- [ ] 条件付きアクセスでエージェント ID を対象にしたポリシーを作成した
-- [ ] Block（一時停止）→ 解放を確認した
-- [ ] `a365 cleanup` の対象フォルダ・config を実行前に確認した
-- [ ] orphan アプリが残っていないか `az ad app list` で確認した
+> **停止と削除は別物。** Block（Kill Switch）は構成・データ接続を保持したまま使用を停止 → 調査後にそのまま解放。完全削除は `a365 cleanup`。退役時は **アクセスレビュー（Entra ID Governance）** も実施。
 
 ---
 

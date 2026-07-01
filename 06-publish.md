@@ -84,15 +84,6 @@ To publish:  https://admin.microsoft.com  >  Agents  >  All agents  >  Add agent
 
 ---
 
-## 確認チェックリスト
-
-- [ ] `manifest` フォルダに `manifest.json` と `manifest.zip` が生成された
-- [ ] `name.short` が 30 文字未満
-- [ ] 管理センター All agents にエージェントが表示される（Name/Version/Publisher/Availability）
-- [ ] 承認 → + Add instance で Entra Agent ID が付与される
-
----
-
 ## 参考
 
 - [エージェントの公開（a365 publish）](https://learn.microsoft.com/microsoft-agent-365/developer/publish)
