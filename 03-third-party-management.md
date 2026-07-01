@@ -217,12 +217,89 @@ Please ask your tenant admin to approve MCP server 'ext_MSRC-CVE1'.
 
 ---
 
+## 7. GitHub Copilot / Claude Code の Agent 365 Skills で自動化する（推奨）
+
+ここまでの §0〜§3（3レイヤーの理解・`a365 setup all`・Observability配線・MCPサーバー登録）は、**手動でも実行できますが、Microsoft 公式の Agent 365 Skills を使うと自然言語の指示だけで自動化**できます。
+
+[**microsoft/agent365-skills**](https://github.com/microsoft/agent365-skills) は、**GitHub Copilot と Claude Code の両方で動く**エージェント向けスキル集（プラグイン）です。本 Step で扱ってきた「Blueprint作成 → AI Teammate化 → Observability配線 → WorkIQ MCPツール追加 → ローカルテスト」という一連の流れを、Copilot／Claude Code が対話形式で実行してくれます。
+
+### 7.1 できること（6つのスキル）
+
+| スキル | 役割 |
+| --- | --- |
+| `a365-setup` | **入り口**。CLI／Azure CLI／Entra ロールなどの前提を確認し、作りたいもの（AI Teammate か Agent (Non AI Teammate) か）を聞いて適切なスキルに振り分ける |
+| `make-ai-teammate` | エージェントに **Teams/Outlook で動く AI Teammate**（Agentic User＝UPN 付き）のホスティング層を追加（Node.js は Express+CloudAdapter、.NET は ASP.NET Core、Python は aiohttp） |
+| `make-a365-agent` | **Agent (Non AI Teammate)**（UPNを持たない System/Custom Engine Agent）として Blueprint・Entra 権限を作成（`obo` または `s2s`） |
+| `instrument-observability` | [Step 8：観測](./08-observability.md) の OpenTelemetry 配線（span エクスポート・トークン取得）を自動生成 |
+| `add-workiq-tools` | Mail／Calendar／Teams／SharePoint／OneDrive 等の **WorkIQ MCP ツール**を追加（`a365 develop add-mcp-servers` を内部で実行） |
+| `test-local` | **AgentsPlayground** でローカル起動・動作確認（Bot Framework 認証不要） |
+
+> [!NOTE]
+> 本ワークショップの題材（LangChain + Node.js）に加え、.NET（AgentFramework／Semantic Kernel）・Python（AgentFramework／LangChain／OpenAI／Claude／Semantic Kernel／Google ADK）などマルチ言語・マルチフレームワークに対応しています。
+
+### 7.2 導入方法
+
+**GitHub Copilot（CLI／VS Code agent mode）の場合**
+
+```bash
+# もっとも簡単：Copilot CLI に直接インストール
+gh skill add microsoft/agent365-skills
+```
+
+`.github/plugin/marketplace.json` を読み込み、6 つのスキルを一括インストールします。`/skills list` で確認でき、次のように呼び出せます。
+
+```bash
+gh copilot suggest "Make this agent an AI Teammate"
+gh copilot suggest "Instrument observability for this agent"
+```
+
+VS Code agent mode や Copilot cloud agent など agentskills.io 互換ツール向けには、プロジェクト直下にインストーラを実行して `.agents/skills/` にコピーする方法もあります。
+
+```bash
+cd my-agent-project
+node /path/to/agent365-skills/scripts/install.js
+```
+
+**Claude Code の場合**
+
+```
+/plugin marketplace add https://github.com/microsoft/agent365-skills
+/plugin install agent365@agent365-skills
+```
+
+> [!TIP]
+> どちらのツールでも、**トリガーフレーズ**（例：`"Make this agent an AI Teammate"` `"Add A365 observability to this agent"` `"Test this agent locally"`）を投げるだけで該当スキルが起動します。まず `a365-setup` から始めるのが推奨導線です（CLI/Azureの前提確認 → Blueprint作成 → 以降のスキルに自動委譲）。
+
+### 7.3 前提条件
+
+| 項目 | 内容 |
+| --- | --- |
+| ランタイム | Node.js 18+ ／ .NET 8.0+ ／ Python 3.11+（エージェントの言語による） |
+| CLI | `a365` CLI（`dotnet tool install -g Microsoft.Agents.A365.DevTools.Cli`）／ Azure CLI |
+| テナント側の一度きりの設定 | `a365` CLI 用のカスタム Entra アプリ登録が必要。**Application Administrator**（推奨・最小権限）／Cloud Application Administrator／Global Administrator のいずれかが `a365 setup requirements` を一度実行すれば、テナント内の全開発者がその状態を引き継ぐ |
+
+### 7.4 安全性の設計
+
+- **最小権限**：認証済みユーザーの権限を超える操作はできない（Azure CLI／MSAL の資格情報をそのまま CLI に橋渡しするのみで、プラグイン側には保存しない）
+- **read-before-write**：変更前に必ず既存設定を読み取って表示し、破壊的操作は明示的な確認を要求
+- **権限の自動付与なし**：`a365 setup all`（開発者実行）または `a365 setup permissions mcp`（Global Administrator 実行）を経由し、権限内容は必ず説明される
+- **パスガード**：エージェントのプロジェクトディレクトリ外・プラグイン自身のディレクトリ内へのファイル書き込みを hook でブロック
+- **テレメトリなし**：利用状況の収集・送信は行わない
+
+> [!TIP]
+> 本 Step の §2（a365 CLIコマンド）・§3（`setup all` の内部動作）・§6（外部MCPサーバー登録）を手作業で追う代わりに、まずこのスキルで一通り自動生成し、**生成された `.env` / `a365.generated.config.json` / `ToolingManifest.json` を見て中身を理解する**という順番でも学習効率がよいです。
+
+---
+
 ## 参考リンク
 
 - [エージェント レジストリ（管理センター）](https://learn.microsoft.com/microsoft-365/admin/manage/agent-registry)
 - [Microsoft Entra Agent ID を作成する方法（Graph 編・サンプルコード付き／Zenn）](https://zenn.dev/microsoft/articles/91df843374fbde)
 - [第三者エージェント連携（Entra Agent ID）](https://learn.microsoft.com/entra/agent-id/)
 - [エージェントのツール管理（管理センター・MCP）](https://learn.microsoft.com/microsoft-365/admin/manage/manage-tools-for-agent)
+- [microsoft/agent365-skills（GitHub Copilot / Claude Code 向け Agent 365 Skills）](https://github.com/microsoft/agent365-skills)
+- [Agent 365 Developer Docs](https://learn.microsoft.com/microsoft-agent-365/developer/)
+- [AI-Guided Setup](https://learn.microsoft.com/microsoft-agent-365/developer/ai-guided-setup)
 
 ---
 
