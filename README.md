@@ -11,7 +11,7 @@ Microsoft Agent 365 の理解を深めるためのワークショップです。
 
 | # | ページ | 内容 |
 | --- | --- | --- |
-| 00 | [概要](./00-overview.md) | **Agent 365 とは？**（初心者向け）・3 本柱・用語ミニ辞典 |
+| 00 | [概要](./00-overview.md) | **Agent 365 とは？**・3 本柱・用語ミニ辞典 |
 | 01 | [Step 1：前提](./01-prerequisites.md) | **利用前提**：ライセンス / 権限(RBAC) / 対象 Agent / 利用担当者（役割） |
 | 02 | [Step 2：Agent Registry / Entra Agent ID](./02-entra-agent-id.md) | **Agent Registry**（一覧・各タブ・Copilot Studio 例）/ Entra Agent ID とは / 4 オブジェクトの関係 |
 | 03 | [Step 3：サードパーティ管理](./03-third-party-management.md) | **開発の前提（3 レイヤー・環境）**・a365 CLI で自前 / 3P を管理下に・コマンド一式・`setup all` の内部・Registry Sync |
@@ -35,7 +35,7 @@ Microsoft Agent 365 の理解を深めるためのワークショップです。
 
 | 区分 | 内容 |
 | --- | --- |
-| **ライセンス** | Microsoft 365 **E7**、または **E5 + Microsoft Agent 365**（Observability 権限の前提でもある） |
+| **ライセンス** | **Microsoft Agent 365**、または **Microsoft 365 E7**。Agent 365 ライセンスの前提として、エンタープライズ顧客は **Microsoft 365 E5**、または **Business Premium + Defender / Purview** が必要（Observability 権限の前提でもある）。 |
 | **ロール** | 管理センターでの承認・instance 作成に **Global Administrator**（または Agent ID Administrator） |
 | **ツール** | Node.js 18+ / Agent 365 DevTools CLI（`a365`）/ Azure CLI（`az`）/ devtunnel CLI |
 | **前提プログラム** | テナントが **Frontier preview** に登録済みであること |
@@ -43,6 +43,20 @@ Microsoft Agent 365 の理解を深めるためのワークショップです。
 > [!IMPORTANT]
 > Agent ID は **instance 化して初めて付与**されます。`blueprint` は「テンプレート」であって実体ではありません。
 > 概念は [00 概要](./00-overview.md) と [Step 2](./02-entra-agent-id.md)、a365 での作り方は [Step 3](./03-third-party-management.md) を参照してください。
+
+---
+
+## 使用するサイト（ポータル）
+
+本ワークショップで使用する主な管理ポータルです。
+
+| 正式名称 | URL | 用途 |
+| --- | --- | --- |
+| **Microsoft 365 Admin Center** | https://admin.cloud.microsoft/ | Microsoft 365 テナント全体の管理（ユーザー・ライセンス・設定、各管理センターへの入口） |
+| **Microsoft Purview portal** | https://purview.microsoft.com/ | コンプライアンス・データガバナンス・情報保護・DLP・eDiscovery |
+| **Microsoft Entra admin center** | https://entra.microsoft.com/ | ID・アクセス管理（ユーザー・グループ・条件付きアクセス・MFA など） |
+| **Microsoft Defender portal** | https://security.microsoft.com/ | Microsoft Defender XDR・脅威対策・インシデント対応・セキュリティ管理 |
+| **Microsoft 365 portal** | https://m365.cloud.microsoft/ | Microsoft 365 ホームポータル（アプリ起動・Copilot・ファイル・業務アプリ） |
 
 ---
 

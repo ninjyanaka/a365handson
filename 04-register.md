@@ -166,7 +166,7 @@ Setup Summary
 | --- | --- |
 | **Instance display name** | Teams での表示名（透明性のため「Assistant」等を含めると良い：例 `Hana (Onboarding Assistant)`） |
 | **Agent Instance alias** | agent user の UPN 前半（例 `hana-assistant` → `hana-assistant@tenant.onmicrosoft.com`） |
-| **Owner / Reports to（Sponsor）** | instance の責任者。**Sponsor は必須**（User オブジェクト。SP・グループは不可） |
+| **Owner / Reports to（Sponsor）** | instance の責任者。**Sponsor は必須**（Agent Identity では原則 User、SP 不可。blueprint レベルでは動的/Microsoft 365 グループも可） |
 | **License** | agent user は実ユーザー扱い。ライセンス割り当てが必要になることがある |
 
 ### 画面の流れ（実機）

@@ -42,7 +42,7 @@ Agent Registry は **Microsoft ネイティブだけでなく、SDK 連携・他
 | --- | --- | --- |
 | **Microsoft ネイティブ**（Copilot Studio / Foundry / M365 Agents） | **自動登録**（Entra Agent ID 付与） | 深い統制（CA・DLP・ライフサイクル） |
 | **SDK 連携 / 自前ホスト**（本ワークショップ題材） | **`a365` SDK で登録**（→ [Step 3](./03-third-party-management.md)） | ネイティブ同等のフル統制 |
-| **他クラウド 3P**（Bedrock / Gemini / Agentforce / Databricks Genie） | **Registry Sync**（プレビュー） | 可視化・棚卸し中心（メタデータ取り込み・削除等） |
+| **他クラウド 3P**（Bedrock / Google Vertex AI / Agentforce / Databricks Genie） | **Registry Sync**（プレビュー） | 可視化・棚卸し中心（メタデータ取り込み・削除等） |
 | **外部 SaaS / MCP サーバー** | **Entra Global Secure Access（境界制御）** | ネットワークで可視化・制御 |
 | **端末上のローカル Agent**（Claude Code / Cursor / OpenClaw 等） | **Defender / Intune / Purview で検出 → Registry に統合**（Shadow AI 対策） | 端末側で検出・可視化・ランタイム保護 |
 
@@ -203,13 +203,13 @@ instance 作成画面で入力する主な項目：
 | --- | --- |
 | Instance display name | Teams での表示名（透明性のため「Assistant」等を含めると良い：例 `Hana (Onboarding Assistant)`） |
 | Agent Instance alias | agent user の UPN 前半（例 `hana-assistant` → `hana-assistant@tenant.onmicrosoft.com`） |
-| Owner / Reports to（Sponsor） | instance の責任者。**Sponsor は必須**で、**User オブジェクト**を指定（SP やグループ不可）。 |
+| Owner / Reports to（Sponsor） | instance の責任者。**Sponsor は必須**。Agent Identity（instance）のスポンサーは原則 **User**（SP 不可）。※blueprint レベルのスポンサーは動的メンバーシップ/Microsoft 365 グループも指定可。 |
 | License | agent user は実ユーザー扱い。ライセンス割り当てが必要になることがある。 |
 
 > [!TIP]
 > - instance 作成後、blueprint 詳細の **Entra agent ID が「—」から実値**に変わります。この値が Observability 送信時の `agentId` です。
 > - **1 つの blueprint から最大 250 体**の Agent Identity を作成できます。
-> - **Sponsor（スポンサー）** は Agent ID のライフサイクル（更新・延長・削除）の判断責任者。スポンサーが組織を離れると**自動的にマネージャーへ変更**されます。
+> - **Sponsor（スポンサー）** は Agent ID のライフサイクル（更新・延長・削除）の判断責任者。スポンサーが組織を離れた際にマネージャーへ引き継ぐ運用は、**Lifecycle Workflows（mover/leaver タスク）で構成**できます（自動ではなく設定が前提）。
 
 ---
 
