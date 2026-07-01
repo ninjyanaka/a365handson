@@ -20,7 +20,7 @@ Microsoft Agent 365 の理解を深めるためのワークショップです。
 | 06 | [Step 6：公開](./06-publish.md) | Agent 365 への公開（manifest → Registry） |
 | 07 | [Step 7：ガバナンス](./07-governance.md) | 管理・ガバナンス（ポリシー / CA / ライフサイクル） |
 | 08 | [Step 8：観測](./08-observability.md) | 観測（ログ / 実行トレース / ツール呼び出し） |
-| 09 | [Step 9：セキュリティ](./09-security.md) | Defender for AI Agents（脅威検知・RTP）/ Purview DLP・IRM 等のガバナンス |
+| 09 | [Step 9：セキュリティ](./09-security.md) | Defender for AI Agents（脅威検知・RTP）/ Purview DLP・IRM 等のガバナンス / Entra Global Secure Access（ネットワーク境界制御） |
 | 99 | [付録](./99-troubleshooting.md) | トラブルシュート早見表・クイックチェックリスト |
 
 ---
@@ -29,7 +29,7 @@ Microsoft Agent 365 の理解を深めるためのワークショップです。
 
 ```
 00 概要 ─▶ 01 前提 ─▶ 02 Entra Agent ID ─▶ 03 サードパーティ管理 ─▶ 04 登録 ─▶ 05 認証 ─▶ 06 公開 ─▶ 07 ガバナンス ─▶ 08 観測 ─▶ 09 セキュリティ ─▶ 99 付録
- (とは？)   (利用前提)    (ID/Registry)        (開発前提/a365)        (発行)     (OBO/S2S)  (manifest)  (CA/停止削除)   (ログ/トレース)   (Defender/Purview)
+ (とは？)   (利用前提)    (ID/Registry)        (開発前提/a365)        (発行)     (OBO/S2S)  (manifest)  (CA/停止削除)   (ログ/トレース)   (Defender/Purview/GSA)
 ```
 
 ## 前提条件（ライセンス・ロール・ツール）
