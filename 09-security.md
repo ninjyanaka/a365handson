@@ -1,4 +1,4 @@
-# Step 9 — セキュリティ（Defender for AI Agents / Purview DLP・IRM / Entra Global Secure Access）
+# Step 9 — セキュリティ（Microsoft Defender：Security for AI agents / Purview DLP・IRM / Entra Global Secure Access）
 
 [← 目次](./README.md) ｜ [← Step 8：観測](./08-observability.md) ｜ [付録：トラブルシュート →](./99-troubleshooting.md)
 
