@@ -1,6 +1,6 @@
 # Step 6 — Agent 365 への公開（manifest → Registry）
 
-[← 目次](./README.md) ｜ [← Step 5：認証](./05-authentication.md) ｜ [次：Step 7 ガバナンス →](./07-governance.md)
+[← 目次](./README.md) ｜ [← Step 5：認証](./05-authentication.md) ｜ [次：Step 7 観測 →](./07-observability.md)
 
 ## 目的
 
@@ -68,7 +68,7 @@ To publish:  https://admin.microsoft.com  >  Agents  >  All agents  >  Add agent
 *▲ ② **Upload agent to publish** — `manifest.zip` を選択すると **Uploading and validating**（アップロード＆検証）が走る。*
 
 ![③ Publish to users（公開先の指定）](./images/06-publish-03-publish-users.png)
-*▲ ③ **Publish to users** — Agent（例 `LangChain Teammate Blueprint`）／ Host products（**Copilot**）／ Publish（**All users**）を指定。**Activate（任意：インスタンスを作成できるユーザーの有効化）は None のまま Next**（有効化は → [Step 7：ガバナンス](./07-governance.md) で扱う）。*
+*▲ ③ **Publish to users** — Agent（例 `LangChain Teammate Blueprint`）／ Host products（**Copilot**）／ Publish（**All users**）を指定。**Activate（任意：インスタンスを作成できるユーザーの有効化）は None のまま Next**（有効化は → [Step 8：ガバナンス](./08-governance.md) で扱う）。*
 
 ![④ Review & finish → Publish](./images/06-publish-04-review-finish.png)
 *▲ ④ **Review & finish** — Publish 先（All users）／ Activate（None）／ Policy template（未選択）を確認 → **Publish**。*
@@ -89,4 +89,4 @@ To publish:  https://admin.microsoft.com  >  Agents  >  All agents  >  Add agent
 - [エージェントの公開（a365 publish）](https://learn.microsoft.com/microsoft-agent-365/developer/publish)
 - [カスタムエージェントのアップロード（管理センター）](https://learn.microsoft.com/microsoft-365/copilot/agent-essentials/agent-lifecycle/agent-upload-agents)
 
-[← Step 5：認証](./05-authentication.md) ｜ [次：Step 7 ガバナンス →](./07-governance.md)
+[← Step 5：認証](./05-authentication.md) ｜ [次：Step 7 観測 →](./07-observability.md)

@@ -1,6 +1,6 @@
 # Microsoft Agent 365 ワークショップ
 
-**Microsoft Agent 365 を理解すること**を目的としたワークショップです。Copilot Studio・自前ホスト型エージェントのライフサイクル（準備 → 登録 → 認証 → 公開 → 統制 → 観測 → セキュリティ）を、実機の画面やコマンドを追いながら体系的に学びます。
+**Microsoft Agent 365 を理解すること**を目的としたワークショップです。Copilot Studio・自前ホスト型エージェントのライフサイクル（準備 → 登録 → 認証 → 公開 → 観測 → 統制 → セキュリティ → ローカルエージェント）を、実機の画面やコマンドを追いながら体系的に学びます。
 各ページは番号順に読めば一直線に進みます。スクリーンショットは `images/` の差し込み枠を各自の環境のものに差し替えてください。
 
 > **はじめての方は [00 概要](./00-overview.md) から読んでください。**
@@ -23,9 +23,12 @@
 | 04 | [Step 4：登録](./04-register.md) | Agent 365 登録（Entra Agent ID 発行）・管理下・Block |
 | 05 | [Step 5：認証](./05-authentication.md) | 認証 2 パターン：委任(OBO) と 自律(S2S) |
 | 06 | [Step 6：公開](./06-publish.md) | Agent 365 への公開（manifest → Registry） |
-| 07 | [Step 7：ガバナンス](./07-governance.md) | 管理・ガバナンス（ポリシー / CA / ライフサイクル） |
-| 08 | [Step 8：観測](./08-observability.md) | 観測（ログ / 実行トレース / ツール呼び出し） |
+| 07 | [Step 7：観測](./07-observability.md) | 観測（ログ / 実行トレース / ツール呼び出し） |
+| 07L | [Step 7 実習ラボ](./07-observability-lab.md) | **画面操作だけの実習教材**：Copilot Studio エージェントで Run を1件作り、4画面（管理センター/Entra/Purview/Defender）で追跡する演習 |
+| 08 | [Step 8：ガバナンス](./08-governance.md) | 管理・ガバナンス（ポリシー / CA / ライフサイクル） |
+| 08L | [Step 8 実習ラボ](./08-governance-lab.md) | **エンジニア向け実習**：CA・Kill Switch・ライフサイクルを KQL/Graph/CLI とサインインログで「効くこと」まで検証 |
 | 09 | [Step 9：セキュリティ](./09-security.md) | Microsoft Defender の Security for AI agents（脅威検知・RTP）/ Purview DLP・IRM 等のガバナンス / Entra Global Secure Access（ネットワーク境界制御） |
+| 10 | [Step 10：ローカルエージェント](./10-local-agent.md) | 端末上で動くローカルエージェント（Shadow AI）の検出と **6 層多層防御**（Defender / Intune / GSA / Purview / MXC / Agent 365） |
 | 99 | [付録](./99-troubleshooting.md) | トラブルシュート早見表・クイックチェックリスト |
 
 ---
@@ -33,8 +36,8 @@
 ## このワークショップの地図
 
 ```
-00 概要 ─▶ 01 前提 ─▶ 02 Entra Agent ID ─▶ 03 サードパーティ管理 ─▶ 04 登録 ─▶ 05 認証 ─▶ 06 公開 ─▶ 07 ガバナンス ─▶ 08 観測 ─▶ 09 セキュリティ ─▶ 99 付録
- (とは？)   (利用前提)    (ID/Registry)        (開発前提/a365)        (発行)     (OBO/S2S)  (manifest)  (CA/停止削除)   (ログ/トレース)   (Defender/Purview/GSA)
+00 概要 ─▶ 01 前提 ─▶ 02 Entra Agent ID ─▶ 03 サードパーティ管理 ─▶ 04 登録 ─▶ 05 認証 ─▶ 06 公開 ─▶ 07 観測 ─▶ 08 ガバナンス ─▶ 09 セキュリティ ─▶ 10 ローカルAgent ─▶ 99 付録
+ (とは？)   (利用前提)    (ID/Registry)        (開発前提/a365)        (発行)     (OBO/S2S)  (manifest)  (ログ/トレース)   (CA/停止削除)   (Defender/Purview/GSA)   (端末/多層防御)
 ```
 
 ## 前提条件（ライセンス・ロール・ツール）
@@ -81,9 +84,12 @@ agent365-handson/
 ├── 04-register.md
 ├── 05-authentication.md
 ├── 06-publish.md
-├── 07-governance.md
-├── 08-observability.md
+├── 07-observability.md
+├── 07-observability-lab.md
+├── 08-governance.md
+├── 08-governance-lab.md
 ├── 09-security.md
+├── 10-local-agent.md
 ├── 99-troubleshooting.md
 └── images/            ← ここのプレースホルダを実際のキャプチャに差し替え
 ```

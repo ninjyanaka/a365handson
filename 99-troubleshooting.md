@@ -1,6 +1,6 @@
 # 付録 — トラブルシュート早見表 & クイックチェックリスト
 
-[← 目次](./README.md) ｜ [← Step 9：セキュリティ](./09-security.md)
+[← 目次](./README.md) ｜ [← Step 10：ローカルエージェント](./10-local-agent.md)
 
 実機で踏んだ落とし穴を症状ベースでまとめます。**上から順に疑う**と早いです。
 
@@ -18,6 +18,8 @@
 | **AADSTS82001**（app-only 不可） | agentic アプリに対し Playground が S2S トークンを要求。Playground の構造的制約。Teams で検証。 |
 | `MCP: rawServers.map is not a function` | MCP 未使用なのに登録を試みている。`client.ts` の `addToolServersToAgent` をガード/コメントアウト。Observability には無関係。 |
 | スパンがコンソールに出ない | `NODE_ENV=production` だと `enableConsoleExporters=false`。これは正常。送信確認は `A365_OBSERVABILITY_LOG_LEVEL` と管理センターで。 |
+| （管理者向け）送信は200成功なのに `CloudAppEvents` に0件 | 2条件のどちらか欠落：①テナントに MDA O365 コネクタ未接続で `CloudAppEvents` テーブル未生成（`KS204 / Failed to resolve table` で判別）②`gen_ai.agent.id` が `AgentsInfo` に未登録の appId（Blueprint と Instance の取り違えが典型）。詳細は [Step 7：観測 › Defender Advanced Hunting](./07-observability.md#defender-advanced-huntingcloudappeventsで横断的にハンティングする) 参照。 |
+| （管理者向け）Observability データが見当たらないが、CA ブロックは効いている | 正常な状態。**Identity/ガバナンス（CA・Purview DLP）はコード非依存で常に効く**が、**深い per-span トレースは自前ホスト側の SDK 配線が必須**。テレメトリの有無とエージェントの統制状態は別軸で判断する（[Step 7：観測 › IT管理者・セキュリティ管理者向け](./07-observability.md#it管理者セキュリティ管理者向けobservability-とガバナンスの関係コード依存-vs-コード非依存)参照）。 |
 
 ---
 

@@ -92,9 +92,9 @@ Agent Registry は **Microsoft ネイティブだけでなく、SDK 連携・他
 | --- | --- | --- |
 | Entra Agent ID | **発行される**（blueprint → instance） | **発行されない**。Entra 上の ID 実体は無く、Registry 上の表示のみ |
 | Risks 列（Entra/Defender/Purview 集約） | フル対応（10種のリスクを検出） | 限定的。Entra 側のシグナル（CA 違反・過剰権限など）は評価対象外 |
-| CA・DLP・IRM 等の深い統制 | 可能（本 Step／[Step 7：ガバナンス](./07-governance.md)） | **不可**。可視化・棚卸し（オンボード状況の把握）が主目的 |
+| CA・DLP・IRM 等の深い統制 | 可能（本 Step／[Step 8：ガバナンス](./08-governance.md)） | **不可**。可視化・棚卸し（オンボード状況の把握）が主目的 |
 | エージェント詳細タブ | Details / Users / Data & Tools / Security / Permissions / Certification / Activity / Instances をすべて取得 | 接続（Connection）単位の同期結果が中心。個々のエージェントの Security/Permissions タブ相当の情報は持たない |
-| 同期後に取得できる項目 | span 単位のテレメトリ（[Step 8：観測](./08-observability.md)）まで含む | Platform provider／Region／Last run date／Last sync status／Total synced agents／Synchronization results（接続のメタデータ） |
+| 同期後に取得できる項目 | span 単位のテレメトリ（[Step 7：観測](./07-observability.md)）まで含む | Platform provider／Region／Last run date／Last sync status／Total synced agents／Synchronization results（接続のメタデータ） |
 | 認証方式 | Entra 上のテナント同意・ロールベース | プラットフォームごとの API 資格情報（例：Bedrock は IAM アクセスキー、Vertex AI はサービスアカウントキー、Agentforce は OAuth Connected App） |
 | 同期方式 | リアルタイム（span がプッシュ型で送信） | **管理者による手動トリガー**（`Sync agents` ボタン）。プレビュー時点ではスケジュール同期は未提供 |
 | エージェント管理アクション | Block／削除／CA 適用など | AI プラットフォーム API がサポートする範囲のエージェント管理操作のみ |
@@ -132,7 +132,7 @@ Agent Registry は **Microsoft ネイティブだけでなく、SDK 連携・他
 *▲ ⑤ 承認ウィザード **Select users**。Specific users/groups で特定ユーザー（ハンズオン2/3/6/7 等）に限定して公開。*
 
 > [!TIP]
-> ⑥ **Apply template（ポリシー適用）** — ポリシーテンプレートで **Entra Agent ID Protection のリスクが High のとき自動ブロック**する条件付きアクセス（例「Block - High Risky Agent」）を有効化（→ [Step 7：ガバナンス](./07-governance.md)）。
+> ⑥ **Apply template（ポリシー適用）** — ポリシーテンプレートで **Entra Agent ID Protection のリスクが High のとき自動ブロック**する条件付きアクセス（例「Block - High Risky Agent」）を有効化（→ [Step 8：ガバナンス](./08-governance.md)）。
 
 ![⑦ Review and finish → Publish](./images/cs-06-review-finish.png)
 *▲ ⑦ **Review and finish**（Publish 先・Deploy・Policy template を確認）→ **Publish**。*
@@ -164,7 +164,7 @@ Agent Registry は **Microsoft ネイティブだけでなく、SDK 連携・他
 *▲ **Agent Map** — 全エージェントをプラットフォーム別クラスタで可視化（Copilot Studio 14・Third-party・Foundry・Bedrock・Agentforce 等）。*
 
 ![R8 Map：ツール呼び出し](./images/cs-reg-08-tool-calls.png)
-*▲ **Map ドリルダウン** — エージェント → ツール（MCP）の呼び出しを可視化（例：Microsoft Docs Search へ **67 tool calls**）。→ [Step 8：観測](./08-observability.md)*
+*▲ **Map ドリルダウン** — エージェント → ツール（MCP）の呼び出しを可視化（例：Microsoft Docs Search へ **67 tool calls**）。→ [Step 7：観測](./07-observability.md)*
 
 ### C. Entra での Agent ID
 

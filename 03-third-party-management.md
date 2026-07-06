@@ -213,7 +213,7 @@ Please ask your tenant admin to approve MCP server 'ext_MSRC-CVE1'.
 *▲ ⑧ 例：Copilot Studio のエージェント（MSRC Security Advisor）› **Add tool** → `MCP Server ext_MSRC-CVE1` を選択し、Connection を指定して **Add and configure**。自前ホストの custom engine agent でも同様にツールとして呼び出せる。*
 
 > [!TIP]
-> ツールの呼び出し・実行は **[Step 8：観測](./08-observability.md)** の Observability（`ExecuteToolScope` ／ Defender `CloudAppEvents`）で追跡できます。
+> ツールの呼び出し・実行は **[Step 7：観測](./07-observability.md)** の Observability（`ExecuteToolScope` ／ Defender `CloudAppEvents`）で追跡できます。
 
 ---
 
@@ -230,7 +230,7 @@ Please ask your tenant admin to approve MCP server 'ext_MSRC-CVE1'.
 | `a365-setup` | **入り口**。CLI／Azure CLI／Entra ロールなどの前提を確認し、作りたいもの（AI Teammate か Agent (Non AI Teammate) か）を聞いて適切なスキルに振り分ける |
 | `make-ai-teammate` | エージェントに **Teams/Outlook で動く AI Teammate**（Agentic User＝UPN 付き）のホスティング層を追加（Node.js は Express+CloudAdapter、.NET は ASP.NET Core、Python は aiohttp） |
 | `make-a365-agent` | **Agent (Non AI Teammate)**（UPNを持たない System/Custom Engine Agent）として Blueprint・Entra 権限を作成（`obo` または `s2s`） |
-| `instrument-observability` | [Step 8：観測](./08-observability.md) の OpenTelemetry 配線（span エクスポート・トークン取得）を自動生成 |
+| `instrument-observability` | [Step 7：観測](./07-observability.md) の OpenTelemetry 配線（span エクスポート・トークン取得）を自動生成 |
 | `add-workiq-tools` | Mail／Calendar／Teams／SharePoint／OneDrive 等の **WorkIQ MCP ツール**を追加（`a365 develop add-mcp-servers` を内部で実行） |
 | `test-local` | **AgentsPlayground** でローカル起動・動作確認（Bot Framework 認証不要） |
 

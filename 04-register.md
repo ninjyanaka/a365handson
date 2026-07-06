@@ -127,7 +127,7 @@ Setup Summary
 *▲ ③ **Select users** — インストールできるユーザー（All users / 特定）と事前インストール先を選択。Host products：Copilot / Teams。*
 
 ![④ Apply template（ポリシーテンプレート）](./images/04-approve-04-apply-template.png)
-*▲ ④ **Apply template** — ポリシーテンプレートを適用。Custom で **Conditional Access**（例「Block - High Risky Agent」）・Access Package・Custom Security Attribute を選択（→ [Step 7：ガバナンス](./07-governance.md)）。*
+*▲ ④ **Apply template** — ポリシーテンプレートを適用。Custom で **Conditional Access**（例「Block - High Risky Agent」）・Access Package・Custom Security Attribute を選択（→ [Step 8：ガバナンス](./08-governance.md)）。*
 
 ![⑤ テンプレート変更の保存](./images/04-approve-05-template-changes.png)
 *▲ ⑤ 既定テンプレートを変更した場合：このエージェントだけに適用（Continue without saving）か、新規テンプレートとして保存（Save as new template）。*
@@ -283,7 +283,7 @@ Setup Summary
 > **Blueprint 単位（A-1）と Instance 単位（A-2）の違い：** A-1 はエージェント全体（全 instance・全ユーザー）を止め、A-2 は**その instance だけ**を止めます。Instance 詳細の **Permanent delete** は完全削除（→ 後述の **② Instance を削除する**）で、Block とは別物です。
 
 > [!TIP]
-> **さらに広く・テナント全体で止めたい場合は条件付きアクセス（Entra）**も使えます。「すべてのエージェント ID」を対象に**トークン発行をブロック**するポリシーで、既存・新規の Agent ID をまとめて認証不可にできます（本番適用前に **レポート専用モード**で影響確認）。本ワークショップでは Agent 365 のレジストリ Block を中心に扱い、CA は [Step 7：ガバナンス](./07-governance.md) と [Learn：テナントでエージェント ID を無効にする](https://learn.microsoft.com/ja-jp/entra/agent-id/disable-agent-identities) を参照。
+> **さらに広く・テナント全体で止めたい場合は条件付きアクセス（Entra）**も使えます。「すべてのエージェント ID」を対象に**トークン発行をブロック**するポリシーで、既存・新規の Agent ID をまとめて認証不可にできます（本番適用前に **レポート専用モード**で影響確認）。本ワークショップでは Agent 365 のレジストリ Block を中心に扱い、CA は [Step 8：ガバナンス](./08-governance.md) と [Learn：テナントでエージェント ID を無効にする](https://learn.microsoft.com/ja-jp/entra/agent-id/disable-agent-identities) を参照。
 
 ---
 
