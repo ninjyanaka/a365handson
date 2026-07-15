@@ -124,19 +124,6 @@ Defender は Agent 365 の観測データ（テレメトリ）・ツール使用
 | [`AgentsInfo`](https://learn.microsoft.com/defender-xdr/advanced-hunting-agentsinfo-table)（旧 `AIAgentsInfo`） | エージェントの構成・所有者・ライフサイクル情報 | 危険な設定・過剰権限エージェントの特定、アラートとの相関（[Step 7](./07-observability.md) 参照） |
 | [`AlertEvidence`](https://learn.microsoft.com/defender-xdr/advanced-hunting-alertevidence-table) | アラートに関連するエンティティ（エージェント・ユーザー・ツール・URL・リソース） | アラートの影響範囲の把握 |
 
-**アラートと構成情報を相関させるサンプル KQL**（過去7日のAIエージェント関連アラートに、エージェントの所有者・ライフサイクル状態を付与）
-
-```kusto
-AlertInfo
-| where Timestamp > ago(7d)
-| where Title has_any ("agent", "jailbreak", "prompt injection")
-| join kind=leftouter (
-    AgentsInfo
-    | summarize arg_max(Timestamp, *) by AgentId
-) on $left.Title == $right.AgentId // 実際は AlertEvidence 経由で AgentId を紐付ける
-| project Timestamp, Title, Severity, AgentName, Owners, LifecycleStatus
-```
-
 > [!NOTE]
 > 実運用では `AlertInfo` と `AgentsInfo` を直接 `AgentId` で join できない場合があります（アラート側のエンティティ情報は `AlertEvidence` に格納されるため）。まずは **Queries タブ › AI Agents** にある Microsoft 提供の事前構築済みクエリを使うのが確実です。
 
