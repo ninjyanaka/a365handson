@@ -12,7 +12,7 @@
 **Agent Registry** は、組織で使えるすべてのエージェントを一元表示するインベントリです。
 **M365 管理センター › Agents › All agents › Registry**、または **Entra 管理センター › Agent ID › Microsoft Entra Agent Registry** から確認します。
 
-> 実機の画面は、**次の §2（Copilot Studio エージェントを例に）** で確認できます。
+> Copilot Studio を例にした**登録の実機手順（ストア公開申請 → 承認 → Registry 確認）は [Step 4：登録](./04-register.md)** に、払い出された **Entra Agent ID の画面**は本ページ **§2** にあります。
 
 ### 4 つのエージェント種別
 
@@ -110,69 +110,16 @@ Agent Registry は **Microsoft ネイティブだけでなく、SDK 連携・他
 
 ---
 
-## 2. Copilot Studio エージェントを例に：公開 → Registry → Entra
+## 2. Copilot Studio エージェントの Entra Agent ID（実機例）
 
-**Copilot Studio で作ったエージェントは `a365`/manifest なしで自動的に Registry／Entra Agent ID に載ります**（自前ホストの題材との対比）。公開からレジストリ確認、Entra までを実機で追います。
-
-### A. Copilot Studio から公開する
-
-![① Show in the store](./images/cs-01-show-in-store.png)
-*▲ ① Copilot Studio › Channels › Microsoft 365 and Teams › **Show in the store** →「Show to everyone in my org」（*Built by your org* に表示、Waiting for approval）。*
-
-![② Submit to org catalog](./images/cs-02-submit-catalog.png)
-*▲ ② Show in Teams app store for org → **Submit to org catalog**（組織カタログへ申請）。*
-
-![③ Agent 365 の Requests に Pending review](./images/cs-03-requests.png)
-*▲ ③ M365 管理センター › Agents › All agents › **Requests** に「Agent 365 Workshop Assistant」（Platform: Copilot Studio）が **Pending review** で出現。*
-
-![④ エージェント詳細を確認](./images/cs-04-detail.png)
-*▲ ④ 詳細（About / Overview）を確認。右上に Publish to store / Reject submission。*
-
-![⑤ Select users（特定ユーザーに限定）](./images/cs-05-select-users.png)
-*▲ ⑤ 承認ウィザード **Select users**。Specific users/groups で特定ユーザー（ハンズオン2/3/6/7 等）に限定して公開。*
-
-> [!TIP]
-> ⑥ **Apply template（ポリシー適用）** — ポリシーテンプレートで **Entra Agent ID Protection のリスクが High のとき自動ブロック**する条件付きアクセス（例「Block - High Risky Agent」）を有効化（→ [Step 8：ガバナンス](./08-governance.md)）。
-
-![⑦ Review and finish → Publish](./images/cs-06-review-finish.png)
-*▲ ⑦ **Review and finish**（Publish 先・Deploy・Policy template を確認）→ **Publish**。*
-
-![⑧ Copilot から Add](./images/cs-07-copilot-add.png)
-*▲ ⑧ ユーザーは Copilot の「Built by your org」でエージェントを開き、**Add** で Teams / Copilot に追加。*
-
-### B. Agent Registry で確認する（タブ別）
-
-![R1 詳細（Registry）](./images/cs-reg-01-detail.png)
-*▲ Registry に登録（**合計 278 エージェント**）。詳細：Publisher type = **Platform · Copilot Studio** ／ Owner ／ Entra agent ID ／ Channel。タブ：Details / Users / Data & tools / Security / Permissions / Activity。*
-
-![R2 Instructions](./images/cs-reg-02-instructions.png)
-*▲ **Instructions** — エージェントの指示（システムプロンプト相当）を可視化。*
-
-![R3 Data & tools](./images/cs-reg-03-data-tools.png)
-*▲ **Data & tools** — Capabilities / Knowledge / **Tools**（Work IQ・Microsoft Learn Docs MCP 等）。*
-
-![R4 Security](./images/cs-reg-04-security.png)
-*▲ **Security** — Microsoft Purview（活動監視・機密データ保護・コンプラ評価）＋ Microsoft Entra（identity 保護・Agent ID）。右上に **Block**。*
-
-![R5 Permissions](./images/cs-reg-05-permissions.png)
-*▲ **Permissions** — 付与権限（Azure API Connections・Power Platform コネクタ等／Granted・Delegated）。*
-
-![R6 Activity](./images/cs-reg-06-activity.png)
-*▲ **Activity** — 利用インサイト（Active users 3 / Sessions 27 / Exceptions 0 / run-time）と時系列グラフ。*
-
-![R7 Agent Map](./images/cs-reg-07-map.png)
-*▲ **Agent Map** — 全エージェントをプラットフォーム別クラスタで可視化（Copilot Studio 14・Third-party・Foundry・Bedrock・Agentforce 等）。*
-
-![R8 Map：ツール呼び出し](./images/cs-reg-08-tool-calls.png)
-*▲ **Map ドリルダウン** — エージェント → ツール（MCP）の呼び出しを可視化（例：Microsoft Docs Search へ **67 tool calls**）。→ [Step 7：観測](./07-observability.md)*
-
-### C. Entra での Agent ID
+**Copilot Studio で作ったエージェントは `a365`/manifest なしで自動的に Registry／Entra Agent ID に載ります**（自前ホストの題材との対比）。ここでは、その結果として **Entra 側に払い出された Agent ID の画面**を確認します。
+（ストアへの公開申請 → 承認 → Registry 確認までの**実機手順は [Step 4：登録](./04-register.md)** に移しました。）
 
 ![Entra の Agent identity](./images/cs-entra-01-agent-identity.png)
 *▲ Microsoft Entra 管理センター（[entra.microsoft.com](https://entra.microsoft.com/)）› Agents › Agent blueprints › 該当の **Agent identity**。Status: Active ／ Sponsors ／ Blueprint App ID ／ Object ID ／ Permissions・Entra roles ／ CA policies・Access packages。**Entra 側でガバナンスされる**。*
 
 > [!NOTE]
-> Copilot Studio 製は **Microsoft が自動で Registry／Entra Agent ID に載せる**ため、開発者は `a365` を使わずに「見える化・統制・保護」の対象になります（自前ホストとの対比 → [Step 3：サードパーティ管理](./03-third-party-management.md)）。
+> Copilot Studio 製は **Microsoft が自動で Registry／Entra Agent ID に載せる**ため、開発者は `a365` を使わずに「見える化・統制・保護」の対象になります（自前ホストとの対比 → [Step 3：サードパーティ管理](./03-third-party-management.md)）。登録の実機手順（ストア公開申請 → 承認 → Registry 確認）は [Step 4：登録](./04-register.md) を参照。
 
 ---
 

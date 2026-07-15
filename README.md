@@ -18,10 +18,10 @@
 | --- | --- | --- |
 | 00 | [概要](./00-overview.md) | **Agent 365 とは？**・3 本柱・用語ミニ辞典 |
 | 01 | [Step 1：前提](./01-prerequisites.md) | **利用前提**：ライセンス / 権限(RBAC) / 対象 Agent / 利用担当者（役割） |
-| 02 | [Step 2：Agent Registry / Entra Agent ID](./02-entra-agent-id.md) | **Agent Registry**（一覧・各タブ・Copilot Studio 例）/ Entra Agent ID とは / 4 オブジェクトの関係 |
+| 02 | [Step 2：Agent Registry / Entra Agent ID](./02-entra-agent-id.md) | **Agent Registry**（一覧・各タブ）/ Entra Agent ID とは / 4 オブジェクトの関係 / Copilot Studio の Agent ID 実機例 |
 | 03 | [Step 3：サードパーティ管理](./03-third-party-management.md) | **開発の前提（3 レイヤー・環境）**・a365 CLI で自前 / 3P を管理下に・コマンド一式・`setup all` の内部・Registry Sync |
-| 04 | [Step 4：登録](./04-register.md) | Agent 365 登録（Entra Agent ID 発行）・管理下・Block |
-| 05 | [Step 5：認証](./05-authentication.md) | 認証 2 パターン：委任(OBO) と 自律(S2S) |
+| 04 | [Step 4：登録](./04-register.md) | Agent 365 登録（**Copilot Studio 自動 / 自前ホスト a365**）・Entra Agent ID 発行・管理下・Block |
+| 05 | [Step 5：認証](./05-authentication.md) | 認可モデル（委任 OBO / アプリ専用 S2S）× 実行トリガー（対話 / 自律）・エージェント間呼び出し |
 | 06 | [Step 6：公開](./06-publish.md) | Agent 365 への公開（manifest → Registry） |
 | 07 | [Step 7：観測](./07-observability.md) | 観測（ログ / 実行トレース / ツール呼び出し） |
 | 07L | [Step 7 実習ラボ](./07-observability-lab.md) | **画面操作だけの実習教材**：Copilot Studio エージェントで Run を1件作り、4画面（管理センター/Entra/Purview/Defender）で追跡する演習 |
