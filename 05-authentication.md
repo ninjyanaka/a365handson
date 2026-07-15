@@ -1,52 +1,134 @@
-# Step 5 — 認証パターン：委任(OBO) と 自律(S2S)
+# Step 5 — 認証・認可パターン：認可モデル（委任 OBO / アプリ専用 S2S）× 実行トリガー（対話 / 自律）
 
 [← 目次](./README.md) ｜ [← Step 4：登録](./04-register.md) ｜ [次：Step 6 公開 →](./06-publish.md)
 
-Agent 365 のエージェントは **2 つの認証パターン**で動きます。ここでは**概要**を押さえます（実装の詳細は末尾の Learn 記事を参照）。いずれのトークンも主体は **Entra Agent ID（Blueprint → Agent Identity）** です。
+Agent 365 のエージェント認証は、**2 つの独立した軸**で捉えると混乱しません（概要のみ。実装の詳細は末尾の Learn を参照）。いずれのトークンも主体は **Entra Agent ID（Blueprint → Agent Identity）** です。
 
-## 2 パターンの全体像
+- **軸①：認可モデル（権限の源）** … **委任（OBO）** か **アプリ専用（S2S）** か
+- **軸②：実行トリガー（誰が起動するか）** … **対話（ユーザー同席・同期）** か **自律（ユーザー不在・非同期）** か
 
-| | **委任アクセス（OBO）** | **自律型（S2S / アプリ専用）** |
+> [!IMPORTANT]
+> **この 2 軸は直交（独立）しており、「OBO＝対話」「S2S＝自律」と 1 対 1 で対になっているわけではありません。**
+> - **自律実行でも、ユーザーの委任資格（OBO）を使えます。** Microsoft の OBO フロー仕様では grant type に **`refresh_token`** が用意され、*「asynchronous scenarios and background processes（非同期・バックグラウンド処理）で利用できる」* と明記されています。つまり夜間バッチのような自律実行でも「特定ユーザーの代理」を継続できます。
+> - **どのエージェントも対話的な `/authorize`（インタラクティブ サインイン）は行いません。** 認証はすべてプログラム的なトークン交換で成立します。「対話型」の AI Teammate も、内部ではクライアント（Teams）から受け取ったユーザートークンを **OBO 交換**しているだけで、エージェント自身が対話サインインするわけではありません。
+> - したがって **「対話 / 自律」は認可の手法ではなく“実行トリガー”の話**であり、認可モデル（委任 / アプリ専用）とは別軸で考えるのが正確です。
+
+## 2 軸の全体像
+
+| 軸 | 選択肢 | この軸で決まること |
 | --- | --- | --- |
-| 動き方 | **サインイン中のユーザーに代わって**実行 | **ユーザー不在で自律的に**実行 |
-| OAuth フロー | On-Behalf-Of（ユーザートークンを交換） | クライアント資格情報（app-only） |
-| 権限の源 | **ユーザーの委任権限**（要ユーザー同意） | **エージェント固有のアプリ権限**（テナント管理者が付与） |
-| トークン claim | `scp` | `roles` |
-| 監査の記録主体 | **ユーザー ID として** | **エージェント ID として** |
-| Observability 経路 | `/observability/…`（agentic token cache・自動） | `/observabilityService/…`（手動 token resolver） |
+| **① 認可モデル（権限の源）** | **委任（OBO）** / **アプリ専用（S2S）** | 誰の権限で動くか・トークン claim（`scp` / `roles`）・監査の記録主体（ユーザー ID／エージェント ID）・同意者（ユーザー／テナント管理者） |
+| **② 実行トリガー** | **対話（同期）** / **自律（非同期）** | ライブのユーザーセッションが起点か、スケジュール・イベント駆動か・トークンの取得契機（ユーザートークン受領／`refresh_token`・client credentials） |
 
-> 共通スコープ例：`api://9b975845-…/Agent365.Observability.OtelWrite`（S2S 用の App role と OBO 用の Delegated scope を**同名で登録**）。
+## 組み合わせ（2 × 2）
 
-## ① 委任アクセス（On-Behalf-Of）
+2 つの軸を掛け合わせると 4 象限になります。**対角（典型）だけでなく、「自律 × 委任(OBO)」の組み合わせも実在**します。
 
-- サインイン中のユーザーに代わって、**ユーザーの権限・データ範囲**で実行 → 操作は**ユーザー ID として**記録。
+| | **委任（OBO：ユーザーの権限で動く）** | **アプリ専用（S2S：エージェント自身の権限で動く）** |
+| --- | --- | --- |
+| **対話**（ユーザー同席・同期） | ⭐ **AI Teammate**（Teams で `@mention`）。最も典型。クライアントからユーザートークンを受領 → OBO 交換。 | 対話 UI 起点だが、ユーザーの委任ではなく**アプリ権限**で完結する操作（例：全社共有リソースへの app-only 操作）。少数だが排他ではない。 |
+| **自律**（ユーザー不在・非同期） | 🟡 **見落とされがちな象限。** バックグラウンド／夜間でも、事前取得した **`refresh_token`** で「特定ユーザーの代理」を継続（OBO）。 | ⭐ **自律バッチ**（夜間・イベント駆動）。最も典型。client credentials でエージェント自身として実行。 |
+
+> 🟡 が、まさに「**自律実行だがユーザーの委任資格を使う**」パターンです。**「自律＝アプリ専用」と決めつけないこと**がこの表の要点です（左右が固定ペアではありません）。
+
+---
+
+## 軸①の詳細：認可モデル（権限の源）
+
+### 委任アクセス（On-Behalf-Of）
+
+- サインイン中（または過去にサインインした）ユーザーに代わって、**ユーザーの権限・データ範囲**で実行 → 操作は**ユーザー ID として**記録。トークン claim は **`scp`**。**ユーザー同意**が必要。
 - **エージェント（blueprint）は対話型サインイン（`/authorize`）を直接開始できません。** クライアントから**ユーザートークンを受け取り、OBO 交換**を行います。
-- **ユーザー同意**が必要。`InheritDelegatedPermissions` で blueprint の委任権限を継承でき、マルチインスタンスの同意を簡素化できます。
+- サポートされる grant type は **`jwt-bearer`（OBO 交換）／`refresh_token`（非同期・バックグラウンド継続）／`client_credential`（交換前段のブループリント トークン取得）**。
+- `InheritDelegatedPermissions` で blueprint の委任権限を継承でき、マルチインスタンスの同意を簡素化できます（FIC インパーソネーション時・テナント境界内）。
 
 ```
-ユーザーがクライアントでサインイン（ユーザートークン）
-        └─▶ エージェントが受け取って OBO 交換 ─▶ ユーザーのコンテキストでアクセス（scp）
+[同期]  ユーザーがクライアントでサインイン（ユーザートークン Tc）
+         └─▶ エージェントが受け取って OBO 交換 ─▶ ユーザーのコンテキストでアクセス（scp）
+
+[非同期] 事前取得のリフレッシュトークン
+         └─▶ grant_type=refresh_token で更新 ─▶ ユーザー不在でも「代理」を継続（scp）
 ```
 
-## ② 自律型（アプリ専用 / S2S）
+### 自律型（アプリ専用 / S2S）
 
-- **ユーザー不在**で、**クライアント資格情報フロー**により自律実行 → 操作は**エージェント ID として**記録。
-- Agent Identity が**自分自身のトークン**を取得（blueprint が子の Agent Identity を偽装）。**必要な権限はテナント管理者が付与**。
+- **ユーザーコンテキストなし**で、**クライアント資格情報フロー**により実行 → 操作は**エージェント ID として**記録。トークン claim は **`roles`**。**必要な権限はテナント管理者が付与**。
+- Agent Identity が**自分自身のトークン**を取得（blueprint が子の Agent Identity を偽装＝`fmi_path`）。
 - Agent ID は常に**シングルテナント**（1 つの Agent ID は 1 つの blueprint のみが所有）。
 
 ```
 エージェント（blueprint）が資格情報を提示 ─▶ Agent Identity が交換 ─▶ アプリ専用トークン（roles）
 ```
 
+## 軸②の詳細：実行トリガー（対話 / 自律）
+
+| | **対話（同期）** | **自律（非同期／バックグラウンド）** |
+| --- | --- | --- |
+| 起動 | ライブのユーザー操作（例：Teams `@mention`） | スケジュール・イベント駆動・キュー処理など |
+| トークンの契機 | クライアントからのユーザートークン受領（OBO の場合） | `refresh_token`（OBO 継続）／client credentials（アプリ専用） |
+| 注意 | **エージェント自身は対話サインインしない**（受け取ったトークンを交換するだけ） | ユーザー不在。OBO を続けるなら `refresh_token`、アプリ権限で足りるなら app-only |
+
+## claim・監査の対応（軸①で決まる部分）
+
+| 項目 | 委任（OBO） | アプリ専用（S2S） |
+| --- | --- | --- |
+| トークン claim | `scp` | `roles` |
+| 権限の源・同意 | ユーザーの委任権限（要ユーザー同意） | エージェント固有のアプリ権限（テナント管理者が付与） |
+| 監査の記録主体 | **ユーザー ID として** | **エージェント ID として** |
+
+> 共通スコープ例：`api://9b975845-…/Agent365.Observability.OtelWrite`（S2S 用の App role と OBO 用の Delegated scope を**同名で登録**）。
+
+> [!NOTE]
+> **Observability の送信経路は、典型的な 2 パターン（AI Teammate／自律バッチ）で実装が分かれます。**
+> - AI Teammate（対話 × OBO）… `/observability/…`（agentic token cache・自動取得）
+> - 自律バッチ（自律 × アプリ専用）… `/observabilityService/…`（手動 token resolver）
+>
+> これは軸①（認可モデル）そのものではなく「どのホスティング パターンで動かすか」に依存する**実装差**です。上記 2 象限が最も一般的なため、まずはこの対応で覚えると実装しやすいですが、「自律 × OBO」のような組み合わせでは配線が変わり得る点に留意してください。
+
+## エージェント間呼び出しの認証（「自律 × アプリ専用」の具体例）
+
+複数のエージェントが連携する **A2A（agent-to-agent）** でも、考え方は本ページの 2 軸のままです。ここでは「自律 × アプリ専用」を例に、**トークンはホップごとに取り直す**という要点を押さえます。
+
+> [!TIP]
+> **結論：自律型の A2A では、Agent A が持つトークンを Agent B 用に書き換えたり、そのままリレーしたりする必要はありません。**
+> Entra 中心の構成では、各エージェントは**呼び出し先ごとに、自分自身の Agent Identity を使って、呼び出し先を audience とする新しいアクセストークンを Entra から取得**します。
+
+- **A → B**：Agent A が **Agent B 向け**トークンを取得（audience = Agent B）して A2A リクエストに付与。A が既に持つ別トークンを B 用に加工するのではありません。
+- **B → C**：A から受け取ったトークンをそのまま C へ渡しません。**Agent B が自身の Agent ID で Agent C 向け**トークンを取得（audience = Agent C）します。
+
+```
+Agent A ──(audience=B のトークンを新規取得)──▶ Agent B ──(audience=C のトークンを新規取得)──▶ Agent C
+   └ A の Agent ID / A の権限                    └ B の Agent ID / B の権限
+       A→B：Audience = Agent B                       B→C：Audience = Agent C
+```
+
+このため、**各通信ホップで「どの Agent が・どのリソースを・どの権限で呼んだか」を分離して管理**できます。各 Agent／API は、Entra が発行したトークンを検証し、トークンに含まれる **Agent ID と Role（`roles`）または Scope（`scp`）** に基づいてアクセスを許可します（エージェントは *confidential client であると同時に、呼び出される側の API／リソースとしても振る舞える* ため）。
+
+> [!NOTE]
+> 複雑に見えるのは、「A のトークンを B が検証し、さらに B がそのトークンで C にアクセスする」というトークン連鎖を**連携ごとに自前実装する前提**で考えるためです。Entra 中心では、**呼び出し元 Agent の Identity・呼び出し先の audience・必要な権限を Entra 上で定義**しておけば、各 Agent／API は受け取ったトークンを検証するだけで済みます。
+
+### ID 管理者が担うこと（トークン受け渡しロジックの個別設計ではない）
+
+| # | 役割 |
+| --- | --- |
+| 1 | 各エージェントに固有の **Agent ID を登録**し、所有者・用途・ライフサイクルを管理（→ [Step 2](./02-entra-agent-id.md) / [Step 4](./04-register.md)） |
+| 2 | どのエージェントがどのエージェント／API を呼んでよいかの**権限関係を、Entra の App Role / OAuth Scope として定義・割り当て** |
+| 3 | その Identity と権限に基づき**アクセスポリシー（条件付きアクセス等）を適用**し、未承認 Agent・想定外の呼び出しを制限（→ [Step 8：ガバナンス](./08-governance.md)） |
+| 4 | **サインインログ・監査ログ**で実際の呼び出し状況を監視し、異常な Agent・権限の不正利用・想定外アクセスを早期検知（→ [Step 7：観測](./07-observability.md)） |
+
+> [!IMPORTANT]
+> **OBO（委任）の A2A は構成が異なります。** ユーザーの権限を引き継いで動く OBO パターンでは、**ユーザートークンを呼び出し先向けトークンに交換**する処理（`jwt-bearer` の OBO 交換）が必要です。一方、**Agent 自身の権限で動く自律型 A2A** では、各 Agent が呼び出し先向けトークンを**直接取得**する構成になります（本節の内容）。多段の委任を伝播させたい場合は、各ホップで OBO 交換を繰り返す形になります。
+
 ## 押さえどころ
 
 - **OBO は自前ホストの SDK でも成立**します。Copilot Studio が楽なのは Microsoft がホストし配線を肩代わりするため。自前でも **Teams で instance を通せば同じ agentic コンテキスト**が得られます（「動かない」の多くは *本物の製品面 vs エミュレータ* の比較）。
-- 1 つの agent アプリが **OBO と S2S の両方**に参加可能（昼は AI Teammate、夜は自律バッチ）。
-- 実装は **承認済み SDK（Microsoft.Identity.Web / Entra ID Auth SDK）** を推奨。本番の資格情報は **Managed Identity / FIC**（クライアントシークレットは非推奨）。
+- **1 つの agent アプリが OBO と S2S の両方に参加可能**（昼は AI Teammate＝対話 × OBO、夜は自律バッチ＝自律 × アプリ専用、必要なら自律 × OBO も）。
+- 実装は **承認済み SDK（Microsoft.Identity.Web / Entra ID Auth SDK（sidecar））** を推奨。本番の資格情報は **Managed Identity / FIC**（クライアントシークレットは非推奨）。
 
 ## 参考
 
-- [On-Behalf-Of フロー（Microsoft Entra Agent ID）](https://learn.microsoft.com/ja-jp/entra/agent-id/agent-on-behalf-of-oauth-flow)
+- [エージェントの認証プロトコル総論（OAuth 2.0 for agents）](https://learn.microsoft.com/entra/agent-id/agent-oauth-protocols)
+- [On-Behalf-Of フロー（Microsoft Entra Agent ID）— `refresh_token` による非同期・バックグラウンド継続を含む](https://learn.microsoft.com/ja-jp/entra/agent-id/agent-on-behalf-of-oauth-flow)
 - [自律アプリの OAuth フロー — アプリ専用プロトコル（Microsoft Entra Agent ID）](https://learn.microsoft.com/ja-jp/entra/agent-id/agent-autonomous-app-oauth-flow)
 
 [← Step 4：登録](./04-register.md) ｜ [次：Step 6 公開 →](./06-publish.md)

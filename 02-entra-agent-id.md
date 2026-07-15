@@ -100,7 +100,7 @@ Agent Registry は **Microsoft ネイティブだけでなく、SDK 連携・他
 | エージェント管理アクション | Block／削除／CA 適用など | AI プラットフォーム API がサポートする範囲のエージェント管理操作のみ |
 
 > [!IMPORTANT]
-> **2026年7月1日以降、サードパーティ クラウドエージェントの検出経路が変わります。** これまで Microsoft Defender for Cloud のコネクタ経由で検出していたサードパーティ クラウドエージェント（Bedrock・Vertex AI 等）は、この日以降 **Registry Sync** 経由での検出に一本化されます。Defender for Cloud 側の検出を使っていた場合は、事前に Registry Sync への接続設定が必要です。
+> **2026年7月1日より、サードパーティ クラウドエージェントの検出経路が変わりました（本資料時点で施行済み）。** これまで Microsoft Defender for Cloud のコネクタ経由で検出していたサードパーティ クラウドエージェント（Bedrock・Vertex AI 等）は、この日以降 **Registry Sync** 経由での検出に一本化されました。Defender for Cloud 側の検出を使っていた場合は、事前に Registry Sync への接続設定が必要です。
 
 > [!TIP]
 > 深い統制（CA・DLP・条件付きブロックなど）が必要なサードパーティ／自前ホスト型エージェントは、Registry Sync ではなく **Agent 365 SDK** で統合してください（→ [Step 3：サードパーティ管理](./03-third-party-management.md)）。Registry Sync はあくまで「まず存在を把握する」ための棚卸し機能で、Bedrock・Vertex AI 側で追加の SDK 統合を行えばオブザーバビリティ等を段階的に追加できます。
