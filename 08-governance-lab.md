@@ -249,7 +249,7 @@ Agent 365 のガバナンスは **「見える化 → ルールで統制 → 効
 **検証・確認ポイント**
 
 - **Agents › Settings** には他に **Allowed agent types**（Microsoft／自組織／外部発行元の可否）・**Security templates**・**Sharing**・**User access** もある。棚卸し方針に合わせて確認する。
-- **未使用エージェントの自動失効（例：90 日）は Management Rule として今後提供予定**（プレビュー／設定依存）。恒久運用では **アクセスレビュー（Entra ID Governance）** で代替する。
+- 未使用エージェントの退役は、**アクセスレビュー（Entra ID Governance）** で運用する。
 
 ---
 

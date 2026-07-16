@@ -10,7 +10,7 @@
 | --- | --- |
 | **ポリシー設定** | 承認(activate)時に Graph / Observability 権限へ同意。Blueprint がポリシーを全 Instance に継承（DLP・外部アクセス制限・ログ規則）。 |
 | **アクセス制御（CA）** | 条件付きアクセスの対象に**エージェント ID** を指定。リソース／リスクで 許可・ブロック・制限。 |
-| **ライフサイクル** | Block（Kill Switch）で一時停止 → `a365 cleanup` で全リソース削除 → 未使用エージェントの自動期限切れ（例：90 日）は **Management Rule で設定可能**（設定依存・今後提供予定の機能）／アクセスレビュー。 |
+| **ライフサイクル** | Block（Kill Switch）で一時停止 → `a365 cleanup` で全リソース削除 → 未使用エージェントの退役は **アクセスレビュー（Entra ID Governance）** で運用。 |
 
 > 担当・ポータル：ポリシー＝AI 管理者（管理センター）／ CA・アクセスレビュー＝ID 管理者（Entra）／ 削除＝作業ディレクトリの `a365 cleanup`
 
@@ -120,7 +120,7 @@ Entra › **条件付きアクセス**で、対象に「**エージェント ID*
 | **Reassign ownerless agents to manager** | 作成者の離職などで**所有者不在**になったエージェント（Agent Builder 製）を特定し、**前所有者のマネージャー**（Entra ID 階層）へ**一括で所有権移管**。 |
 
 > [!NOTE]
-> **Agents › Settings** には他に **Allowed agent types**（Microsoft／自組織／外部発行元の可否）・**Security templates**・**Sharing**・**User access**（All / No / Specific users）もあります。未使用エージェントの自動無効化（例：90 日）は、この Management Rule として**今後提供予定**です。
+> **Agents › Settings** には他に **Allowed agent types**（Microsoft／自組織／外部発行元の可否）・**Security templates**・**Sharing**・**User access**（All / No / Specific users）もあります。
 
 **開発者側の完全削除（自前ホスト）** — 作業ディレクトリの `a365 cleanup` で全 Agent 365 リソースを削除します（破壊的）。
 

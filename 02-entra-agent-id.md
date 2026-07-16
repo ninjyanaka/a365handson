@@ -81,7 +81,7 @@ Agent Registry は **Microsoft ネイティブだけでなく、SDK 連携・他
 | **端末上のローカル Agent**（Claude Code / Cursor / OpenClaw 等） | **Defender / Intune / Purview で検出 → Registry に統合**（Shadow AI 対策） | 端末側で検出・可視化・ランタイム保護 |
 
 > [!NOTE]
-> - **Registry Sync**：他クラウドの既存エージェントを管理センターに同期して可視化（現状は手動トリガー、将来スケジュール自動同期）。深い統制はネイティブ／SDK が優位。
+> - **Registry Sync**：他クラウドの既存エージェントを管理センターに同期して可視化（現状は手動トリガー）。深い統制はネイティブ／SDK が優位。
 > - **ローカル Agent（Shadow AI）**：端末に入り込んだ野良エージェントを **Defender for Endpoint / Intune / Purview** で検出 → リスクレビュー後に **承認 / ブロック / 監視** → Registry に自動登録して一元管理。
 
 ### Registry Sync で取れる情報の違い（ネイティブ／SDK 統合 vs 3rd party cloud）
@@ -96,7 +96,7 @@ Agent Registry は **Microsoft ネイティブだけでなく、SDK 連携・他
 | エージェント詳細タブ | Details / Users / Data & Tools / Security / Permissions / Certification / Activity / Instances をすべて取得 | 接続（Connection）単位の同期結果が中心。個々のエージェントの Security/Permissions タブ相当の情報は持たない |
 | 同期後に取得できる項目 | span 単位のテレメトリ（[Step 7：観測](./07-observability.md)）まで含む | Platform provider／Region／Last run date／Last sync status／Total synced agents／Synchronization results（接続のメタデータ） |
 | 認証方式 | Entra 上のテナント同意・ロールベース | プラットフォームごとの API 資格情報（例：Bedrock は IAM アクセスキー、Vertex AI はサービスアカウントキー、Agentforce は OAuth Connected App） |
-| 同期方式 | リアルタイム（span がプッシュ型で送信） | **管理者による手動トリガー**（`Sync agents` ボタン）。プレビュー時点ではスケジュール同期は未提供 |
+| 同期方式 | リアルタイム（span がプッシュ型で送信） | **管理者による手動トリガー**（`Sync agents` ボタン） |
 | エージェント管理アクション | Block／削除／CA 適用など | AI プラットフォーム API がサポートする範囲のエージェント管理操作のみ |
 
 > [!IMPORTANT]
