@@ -76,6 +76,9 @@ Step 07〜09 で見た **Observe → Govern → Secure** は、主に **Agent 36
 - **資産マッピング**：**デバイス・MCP サーバー・ID・クラウドリソース**にわたって、エージェントの資産コンテキストをマッピング。
 - **リスクの可視化**：構成・アクセス・アクション・潜在的な露出から生じるリスクを **OK ／ 要確認 ／ ブロック済み** で可視化。
 
+![Microsoft Defender ポータル：AI Agents（preview）› Local agents で発見されたローカルエージェント](./images/10-local-agent-03-discovery.png)
+*▲ Microsoft Defender ポータル › **AI Agents（preview）› Local agents** タブ。管理対象デバイス上で**発見されたローカルエージェント**（`VSCode GitHub Copilot Extension` / `Claude Code` / `GitHub Copilot CLI` / `Ollama Desktop` / `OpenClaw` / `Codex CLI` など）を、**Version・Device name・Device ID・OS platform・Device type・Account** 付きで一覧。上部の **Agents insights** に Total monitored / High Risk / Critical の件数が表示される。*
+
 | 担当 | 役割 |
 | --- | --- |
 | **Defender for Endpoint** | 端末上のローカル AI エージェント／MCP サーバーを**発見・プロファイリング**し、**露出をマッピング**。Advanced Hunting で構成・利用状況・デバイス／ユーザーとの関連を横断分析。 |
